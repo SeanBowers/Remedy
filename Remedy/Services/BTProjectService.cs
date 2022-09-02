@@ -64,22 +64,21 @@ namespace Remedy.Services
             }
         }
 
-#pragma warning disable CS8603 // Possible null reference return.
         public async Task<Project> GetProjectByIdAsync(int projectId)
         {
             try
             {
-                return await _context.Projects!.Include(p => p.Company)
-                                              .Include(p => p.Tickets)
-                                              .Include(p => p.ProjectPriority)
-                                              .FirstOrDefaultAsync(p => p.Id == projectId);
+                Project? project = await _context.Projects!.Include(p => p.Company)
+                                                           .Include(p => p.Tickets)
+                                                           .Include(p => p.ProjectPriority)
+                                                           .FirstOrDefaultAsync(p => p.Id == projectId);
+                return project!;
             }
             catch (Exception)
             {
                 throw;
             }
         }
-#pragma warning restore CS8603 // Possible null reference return.
 
         public async Task UpdateProjectAsync(Project project)
         {

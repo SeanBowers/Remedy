@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Remedy.Models.Enums
 @inject SignInManager<BTUser> SignInManager
 
 <!DOCTYPE html>
@@ -63,6 +64,18 @@
                                     <i class="fs-5 bi-mailbox2"></i><span class="ms-1 d-none d-sm-inline">Notifications</span>
                                 </a>
                             </li>
+                            @if (User.IsInRole("Admin"))
+                            @*@if (User.IsInRole(nameof(BTRoles.Admin)))*@
+                            {
+                            <li class="dropdown">
+                                <a asp-area="" asp-controller="Projects" asp-action="Index" class="nav-link dropdown-toggle px-sm-0 px-2" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fs-5 bi-file-earmark-font"></i><span class="ms-1 d-none d-sm-inline">Admin</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Projects" asp-action="AssignProjectManager">Assign PM</a></li>
+                                </ul>
+                            </li>
+                            }
                         </ul>
                     }
                 </div>

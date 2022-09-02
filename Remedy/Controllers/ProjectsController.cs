@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
 using Remedy.Models;
+using Remedy.Models.Enums;
+using Remedy.Models.ViewModels;
 using Remedy.Services.Interfaces;
 
 namespace Remedy.Controllers
@@ -20,16 +22,19 @@ namespace Remedy.Controllers
         private readonly UserManager<BTUser> _userManager;
         private readonly IFileService _fileService;
         private readonly IBTProjectService _projectService;
+        private readonly IBTRolesService _rolesService;
 
         public ProjectsController(ApplicationDbContext context,
                                   UserManager<BTUser> userManager,
                                   IFileService fileService,
-                                  IBTProjectService projectService)
+                                  IBTProjectService projectService,
+                                  IBTRolesService rolesService)
         {
             _context = context;
             _userManager = userManager;
             _fileService = fileService;
-            _projectService = projectService;   
+            _projectService = projectService;  
+            _rolesService = rolesService;
         }
 
         // GET: Projects
@@ -38,6 +43,37 @@ namespace Remedy.Controllers
             var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
             var projects = await _projectService.GetProjectsAsync(companyId);
             return View(projects);
+        }
+
+        [Authorize(Roles = "Admin")]
+        // GET: AssignProjectManager
+        public async Task<IActionResult> AssignProjectManager(int? id)
+        {
+            if (id == null) { return NotFound(); }
+
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+
+            AssignPMViewModel model = new();
+            model.Project = await _projectService.GetProjectByIdAsync(id.Value);
+            model.PMList = new SelectList(await _rolesService.GetUsersInRoleAsync("ProjectManager", companyId), "Id", "FullName");
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignProjectManager(AssignPMViewModel model)
+        {
+            if (!string.IsNullOrEmpty(model.PMID))
+            {
+                // Add PM to Project TODO: Enhance this process
+                var project = await _projectService.GetProjectByIdAsync(model.Project!.Id);
+                var projectManager = await _context.Users.FindAsync(model.PMID);
+                project.Members!.Add(projectManager!);
+                TempData["success"] = "Project Manager Assigned!";
+                return RedirectToAction(nameof(Index));
+            };
+            return RedirectToAction(nameof(AssignProjectManager), new {id = model.Project!.Id});
         }
 
         // GET: Archived Projects
@@ -54,7 +90,7 @@ namespace Remedy.Controllers
         {
             if (id == null){return NotFound();}
 
-            var project = await _projectService.GetProjectByIdAsync((int)id);
+            var project = await _projectService.GetProjectByIdAsync(id.Value);
 
             if (project == null){return NotFound();}
 
@@ -101,7 +137,7 @@ namespace Remedy.Controllers
         {
             if (id == null){return NotFound();}
 
-            var project = await _projectService.GetProjectByIdAsync((int)id);
+            var project = await _projectService.GetProjectByIdAsync(id.Value);
 
             if (project == null){return NotFound();
             }
@@ -155,7 +191,7 @@ namespace Remedy.Controllers
         [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Archive(int? id)
         {
-            var project = await _projectService.GetProjectByIdAsync((int)id);
+            var project = await _projectService.GetProjectByIdAsync(id!.Value);
             return View(project);
         }
 
@@ -173,7 +209,7 @@ namespace Remedy.Controllers
         [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Restore(int? id)
         {
-            var project = await _projectService.GetProjectByIdAsync((int)id);
+            var project = await _projectService.GetProjectByIdAsync(id!.Value);
             return View(project);
         }
 
