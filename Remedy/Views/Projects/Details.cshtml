@@ -1,5 +1,8 @@
-﻿@model Remedy.Models.Project
+﻿@using Remedy.Enums
+@model Remedy.Models.Project
+@using Remedy.Services.Interfaces;
 
+@inject IFileService fileService
 @{
     ViewData["Title"] = "Details";
 }
@@ -10,6 +13,7 @@
     <h4>Project</h4>
     <hr />
     <dl class="row">
+
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
@@ -47,18 +51,6 @@
             @Html.DisplayFor(model => model.Archived)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageData)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageData)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageType)
-        </dd>
-        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Company)
         </dt>
         <dd class = "col-sm-10">
@@ -70,11 +62,13 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.ProjectPriority.Id)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProjectPriority)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProjectPriority.Id)
+    </dl>
+    <dl>
+        <dd>
+            @foreach(var user in Model.Members!)
+            {
+                <p>@user.FullName</p>
+            }
         </dd>
     </dl>
 </div>

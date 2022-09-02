@@ -70,6 +70,7 @@ namespace Remedy.Controllers
                 var project = await _projectService.GetProjectByIdAsync(model.Project!.Id);
                 var projectManager = await _context.Users.FindAsync(model.PMID);
                 project.Members!.Add(projectManager!);
+                await _context.SaveChangesAsync();
                 TempData["success"] = "Project Manager Assigned!";
                 return RedirectToAction(nameof(Index));
             };
