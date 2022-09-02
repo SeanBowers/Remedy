@@ -1,7 +1,10 @@
+using Blog.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
 using Remedy.Models;
+using Remedy.Services;
+using Remedy.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,9 @@ builder.Services.AddIdentity<BTUser, IdentityRole>(options => options.SignIn.Req
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IBTProjectService, BTProjectService>();
 
 builder.Services.AddMvc();
 

@@ -5,8 +5,10 @@ namespace Remedy.Models
 {
     public class Project
     {
+        // Primary Key
         public int Id { get; set; }
 
+        //Foreign Key
         public int CompanyId { get; set; }
 
         [Required]
@@ -26,6 +28,7 @@ namespace Remedy.Models
         [DataType(DataType.Date)]
         public DateTime? EndDate { get; set; }
 
+        //Foreign Key
         public int ProjectPriorityId { get; set; }
 
         public bool Archived { get; set; }

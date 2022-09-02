@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,18 +14,20 @@ namespace Remedy.Controllers
     public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<BTUser> _userManager;
 
-        public CompaniesController(ApplicationDbContext context)
+        public CompaniesController(ApplicationDbContext context, UserManager<BTUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Companies
         public async Task<IActionResult> Index()
         {
-            return _context.Companies != null ?
-                        View(await _context.Companies.ToListAsync()) :
-                        Problem("Entity set 'ApplicationDbContext.Companies'  is null.");
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            var company = await _context.Companies!.FirstOrDefaultAsync(c => c.Id == companyId);
+            return View(company);
         }
 
         // GET: Companies/Details/5
@@ -52,8 +55,6 @@ namespace Remedy.Controllers
         }
 
         // POST: Companies/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,ImageData,ImageType")] Company company)
@@ -84,8 +85,6 @@ namespace Remedy.Controllers
         }
 
         // POST: Companies/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,ImageData,ImageType")] Company company)

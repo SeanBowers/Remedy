@@ -20,7 +20,10 @@ namespace Remedy.Data
         private static int movieId;
         private static int addressbookId;
 
-
+        public static DateTime GetPostGresDate(DateTime dateTime)
+        {
+            return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+        }
         public static string GetConnectionString(IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -661,7 +664,7 @@ namespace Remedy.Data
                      new Project()
                      {
                          CompanyId = company1Id,
-                         Name = "Build a Personal Porfolio",
+                         Name = "Porfolio",
                          Description="Single page html, css & javascript page.  Serves as a landing page for candidates and contains a bio and links to all applications and challenges." ,
                          Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
                          StartDate = DateTime.SpecifyKind(new DateTime(2021,8,20), DateTimeKind.Utc),
@@ -671,7 +674,7 @@ namespace Remedy.Data
                      new Project()
                      {
                          CompanyId = company2Id,
-                         Name = "Build a supplemental Blog Web Application",
+                         Name = "Blog",
                          Description="Candidate's custom built web application using .Net Core with MVC, a postgres database and hosted in a heroku container.  The app is designed for the candidate to create, update and maintain a live blog site.",
                          Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
                          StartDate = DateTime.SpecifyKind(new DateTime(2021,8,20), DateTimeKind.Utc),
@@ -681,7 +684,7 @@ namespace Remedy.Data
                      new Project()
                      {
                          CompanyId = company1Id,
-                         Name = "Build an Issue Tracking Web Application",
+                         Name = "Bug Tracker",
                          Description="A custom designed .Net Core application with postgres database.  The application is a multi tennent application designed to track issue tickets' progress.  Implemented with identity and user roles, Tickets are maintained in projects which are maintained by users in the role of projectmanager.  Each project has a team and team members.",
                          Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
                          StartDate = DateTime.SpecifyKind(new DateTime(2021,8,20), DateTimeKind.Utc),
@@ -691,7 +694,7 @@ namespace Remedy.Data
                      new Project()
                      {
                          CompanyId = company2Id,
-                         Name = "Build an Address Book Web Application",
+                         Name = "Address Book",
                          Description="A custom designed .Net Core application with postgres database.  This is an application to serve as a rolodex of contacts for a given user..",
                          Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
                          StartDate = DateTime.SpecifyKind(new DateTime(2021,8,20), DateTimeKind.Utc),
@@ -701,7 +704,7 @@ namespace Remedy.Data
                     new Project()
                      {
                          CompanyId = company1Id,
-                         Name = "Build a Movie Information Web Application",
+                         Name = "Movie App",
                          Description="A custom designed .Net Core application with postgres database.  An API based application allows users to input and import movie posters and details including cast and crew information.",
                          Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
                          StartDate = DateTime.SpecifyKind(new DateTime(2021,8,20), DateTimeKind.Utc),
@@ -716,11 +719,11 @@ namespace Remedy.Data
 
 
                 //Get company Ids
-                portfolioId = context.Projects.FirstOrDefault(p => p.Name == "Build a Personal Porfolio")!.Id;
-                blogId = context.Projects.FirstOrDefault(p => p.Name == "Build a supplemental Blog Web Application")!.Id;
-                bugtrackerId = context.Projects.FirstOrDefault(p => p.Name == "Build an Issue Tracking Web Application")!.Id;
-                movieId = context.Projects.FirstOrDefault(p => p.Name == "Build a Movie Information Web Application")!.Id;
-                addressbookId = context.Projects.FirstOrDefault(p => p.Name == "Build an Address Book Web Application")!.Id;
+                portfolioId = context.Projects.FirstOrDefault(p => p.Name == "Porfolio")!.Id;
+                blogId = context.Projects.FirstOrDefault(p => p.Name == "Blog")!.Id;
+                bugtrackerId = context.Projects.FirstOrDefault(p => p.Name == "Bug Tracker")!.Id;
+                movieId = context.Projects.FirstOrDefault(p => p.Name == "Address Book")!.Id;
+                addressbookId = context.Projects.FirstOrDefault(p => p.Name == "Movie App")!.Id;
 
             }
             catch (Exception ex)

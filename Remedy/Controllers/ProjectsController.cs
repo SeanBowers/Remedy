@@ -2,100 +2,117 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
 using Remedy.Models;
+using Remedy.Services.Interfaces;
 
 namespace Remedy.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<BTUser> _userManager;
+        private readonly IFileService _fileService;
+        private readonly IBTProjectService _projectService;
 
-        public ProjectsController(ApplicationDbContext context)
+        public ProjectsController(ApplicationDbContext context,
+                                  UserManager<BTUser> userManager,
+                                  IFileService fileService,
+                                  IBTProjectService projectService)
         {
             _context = context;
+            _userManager = userManager;
+            _fileService = fileService;
+            _projectService = projectService;   
         }
 
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Projects.Include(p => p.Company).Include(p => p.ProjectPriority);
-            return View(await applicationDbContext.ToListAsync());
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            var projects = await _projectService.GetProjectsAsync(companyId);
+            return View(projects);
+        }
+
+        // GET: Archived Projects
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> ArchivedProjects()
+        {
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            var projects = await _projectService.GetArchivedProjectsAsync(companyId);
+            return View(projects);
         }
 
         // GET: Projects/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Projects == null)
-            {
-                return NotFound();
-            }
+            if (id == null){return NotFound();}
 
-            var project = await _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectPriority)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
+            var project = await _projectService.GetProjectByIdAsync((int)id);
+
+            if (project == null){return NotFound();}
 
             return View(project);
         }
 
         // GET: Projects/Create
+        [Authorize(Roles = "Admin, ProjectManager")]
         public IActionResult Create()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id");
+            // TODO: Abstract the use of _context
+            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name");
             return View();
         }
 
         // POST: Projects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,Archived,ImageData,ImageType")] Project project)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,StartDate,EndDate,ProjectPriorityId,ProjectImg")] Project project)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(project);
-                await _context.SaveChangesAsync();
+                // TODO: Make CompanyId retrieval more efficient.
+                project.CompanyId = (await _userManager.GetUserAsync(User)).CompanyId;
+                project.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                project.StartDate = DateTime.SpecifyKind(project.StartDate!.Value, DateTimeKind.Utc);
+                project.EndDate = DateTime.SpecifyKind(project.EndDate!.Value, DateTimeKind.Utc);
+                if (project.ProjectImg != null)
+                {
+                    project.ImageData = await _fileService.ConvertFileToByteArrayAsync(project.ProjectImg);
+                    project.ImageType = project.ProjectImg.ContentType;
+                }
+                TempData["success"] = "Project Created Successfully!";
+                await _projectService.AddProjectAsync(project);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id", project.ProjectPriorityId);
+            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
             return View(project);
         }
 
         // GET: Projects/Edit/5
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Projects == null)
-            {
-                return NotFound();
-            }
+            if (id == null){return NotFound();}
 
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null)
-            {
-                return NotFound();
+            var project = await _projectService.GetProjectByIdAsync((int)id);
+
+            if (project == null){return NotFound();
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id", project.ProjectPriorityId);
+            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
             return View(project);
         }
 
         // POST: Projects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,Archived,ImageData,ImageType")] Project project)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageData,ImageType,ProjectImg")] Project project)
         {
             if (id != project.Id)
             {
@@ -106,8 +123,15 @@ namespace Remedy.Controllers
             {
                 try
                 {
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
+                    project.Created = DateTime.SpecifyKind(project.Created, DateTimeKind.Utc);
+                    project.StartDate = DateTime.SpecifyKind(project.StartDate!.Value, DateTimeKind.Utc);
+                    project.EndDate = DateTime.SpecifyKind(project.EndDate!.Value, DateTimeKind.Utc);
+                    if (project.ProjectImg != null)
+                    {
+                        project.ImageData = await _fileService.ConvertFileToByteArrayAsync(project.ProjectImg);
+                        project.ImageType = project.ProjectImg.ContentType;
+                    }
+                    await _projectService.UpdateProjectAsync(project);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -120,55 +144,52 @@ namespace Remedy.Controllers
                         throw;
                     }
                 }
+                TempData["success"] = "Project Edited Successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id", project.ProjectPriorityId);
             return View(project);
         }
 
-        // GET: Projects/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Projects/Archive/5
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> Archive(int? id)
         {
-            if (id == null || _context.Projects == null)
-            {
-                return NotFound();
-            }
-
-            var project = await _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectPriority)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
+            var project = await _projectService.GetProjectByIdAsync((int)id);
             return View(project);
         }
 
-        // POST: Projects/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Projects/Archive/5
+        [HttpPost, ActionName("Archive")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> ArchiveConfirmed(int id)
         {
-            if (_context.Projects == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Projects'  is null.");
-            }
-            var project = await _context.Projects.FindAsync(id);
-            if (project != null)
-            {
-                _context.Projects.Remove(project);
-            }
-            
-            await _context.SaveChangesAsync();
+            await _projectService.ArchiveProjectAsync(id);
+            TempData["success"] = "Project Archived!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Projects/Restore/5
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> Restore(int? id)
+        {
+            var project = await _projectService.GetProjectByIdAsync((int)id);
+            return View(project);
+        }
+
+        // POST: Projects/Restore/5
+        [HttpPost, ActionName("Restore")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestoreProject(int id)
+        {
+            await _projectService.RestoreProjectAsync(id);
+            TempData["success"] = "Project Restored!";
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProjectExists(int id)
         {
-          return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
