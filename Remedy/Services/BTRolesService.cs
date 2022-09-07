@@ -32,5 +32,18 @@ namespace Remedy.Services
                 throw;
             }
         }
+
+        public async Task<bool> IsUserInRoleAsync(BTUser member, string roleName)
+        {
+            try
+            {
+                return await _userManager.IsInRoleAsync(member, roleName);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

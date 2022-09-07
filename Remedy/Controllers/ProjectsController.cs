@@ -33,7 +33,7 @@ namespace Remedy.Controllers
             _context = context;
             _userManager = userManager;
             _fileService = fileService;
-            _projectService = projectService;  
+            _projectService = projectService;
             _rolesService = rolesService;
         }
 
@@ -51,11 +51,15 @@ namespace Remedy.Controllers
         {
             if (id == null) { return NotFound(); }
 
+            AssignPMViewModel model = new();
+
             var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
 
-            AssignPMViewModel model = new();
             model.Project = await _projectService.GetProjectByIdAsync(id.Value);
-            model.PMList = new SelectList(await _rolesService.GetUsersInRoleAsync("ProjectManager", companyId), "Id", "FullName");
+
+            string? currentPMId = (await _projectService.GetProjectManagerAsync(model.Project.Id)!)?.Id;
+
+            model.PMList = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId), "Id", "FullName", currentPMId);
 
             return View(model);
         }
@@ -66,15 +70,73 @@ namespace Remedy.Controllers
         {
             if (!string.IsNullOrEmpty(model.PMID))
             {
-                // Add PM to Project TODO: Enhance this process
-                var project = await _projectService.GetProjectByIdAsync(model.Project!.Id);
-                var projectManager = await _context.Users.FindAsync(model.PMID);
-                project.Members!.Add(projectManager!);
-                await _context.SaveChangesAsync();
+                await _projectService.AddProjectManagerAsync(model.PMID, model.Project!.Id);
+
                 TempData["success"] = "Project Manager Assigned!";
                 return RedirectToAction(nameof(Index));
             };
-            return RedirectToAction(nameof(AssignProjectManager), new {id = model.Project!.Id});
+
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+
+            model.Project = await _projectService.GetProjectByIdAsync(model.Project!.Id);
+
+            string? currentPMId = (await _projectService.GetProjectManagerAsync(model.Project.Id)!)?.Id;
+
+            model.PMList = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId), "Id", "FullName", currentPMId);
+
+            TempData["error"] = "No Project Manager Chosen! Please select a PM.";
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin, ProjectManager")]
+        // GET: AssignProjectMembers
+        public async Task<IActionResult> AssignProjectMembers(int? id)
+        {
+            if (id == null) { return NotFound(); }
+
+            AssignMembersViewModel model = new();
+
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+
+            model.Project = await _projectService.GetProjectByIdAsync(id.Value);
+
+            var currentDevIds = (await _projectService.GetProjectDevelopersAsync(model.Project.Id)!);
+
+            var currentSubIds = (await _projectService.GetProjectSubmittersAsync(model.Project.Id)!);
+
+            model.DevList = new MultiSelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId), "Id", "FullName", currentDevIds);
+            model.SubList = new MultiSelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId), "Id", "FullName", currentSubIds);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        // GET: AssignProjectMembers
+        public async Task<IActionResult> AssignProjectMembers(AssignMembersViewModel model, List<string> SubID, List<string> DevID)
+        {
+            if (model.SubID != null || model.DevID != null)
+            {
+                SubID.AddRange(DevID);
+                var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+                var devs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+                var subs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
+                devs.AddRange(subs);
+                foreach (var user in devs)
+                {
+                    await _projectService.RemoveUserFromProjectAsync(user, model.Project!.Id);
+                }
+                foreach (var id in SubID)
+                {
+                    var user = await _context.Users.FindAsync(id);
+                    await _projectService.AddUserToProjectAsync(user, model.Project.Id);
+                }
+
+                TempData["success"] = "Members Assigned!";
+                return RedirectToAction(nameof(Index));
+            };
+
+            return View(model);
         }
 
         // GET: Archived Projects
@@ -89,11 +151,11 @@ namespace Remedy.Controllers
         // GET: Projects/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null){return NotFound();}
+            if (id == null) { return NotFound(); }
 
             var project = await _projectService.GetProjectByIdAsync(id.Value);
 
-            if (project == null){return NotFound();}
+            if (project == null) { return NotFound(); }
 
             return View(project);
         }
@@ -136,11 +198,13 @@ namespace Remedy.Controllers
         [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null){return NotFound();}
+            if (id == null) { return NotFound(); }
 
             var project = await _projectService.GetProjectByIdAsync(id.Value);
 
-            if (project == null){return NotFound();
+            if (project == null)
+            {
+                return NotFound();
             }
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
             return View(project);

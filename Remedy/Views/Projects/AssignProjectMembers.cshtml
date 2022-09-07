@@ -1,4 +1,4 @@
-﻿@model Remedy.Models.ViewModels.AssignPMViewModel
+﻿@model Remedy.Models.ViewModels.AssignMembersViewModel
 
 @{
     ViewData["Title"] = "Assign PM";
@@ -10,8 +10,7 @@
 <hr />
 <div class="row card">
     <div class="col-md-4">
-        <form method="post" asp-action="AssignProjectManager" asp-controller="Projects">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form method="post" asp-action="AssignProjectMembers" asp-controller="Projects">
             <input hidden asp-for="Project!.Id" />
 
             <h2>@Model.Project?.Name </h2>
@@ -19,11 +18,14 @@
             <p>@Model.Project?.Description </p>
 
             <div class="form-group">
-                <label class="control-label">Select Project Manager</label>
-                <select asp-for="PMID" class="form-control" asp-items="@Model.PMList">
+                <label class="control-label">Select Developers</label>
+                <select asp-for="DevID" class="form-control" asp-items="@Model.DevList" multiple> 
                     <option></option>
                 </select>
-                <span asp-validation-for="PMID" class="text-danger"></span>
+                <label class="control-label">Select Submitters</label>
+                <select asp-for="SubID" class="form-control" asp-items="@Model.SubList" multiple>
+                    <option></option>
+                </select>
             </div>
                 <input type="submit" value="Assign" class="btn btn-primary" />
         </form>

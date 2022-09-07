@@ -3,11 +3,12 @@
 @using Remedy.Services.Interfaces;
 
 @inject IFileService fileService
+@inject IBTProjectService projectService
 
 @{
     ViewData["Title"] = "Index";
 }
-<partial name="_Notification"/>
+<partial name="_Notification" />
 
 <h1>Index</h1>
 
@@ -18,10 +19,19 @@
     <thead>
         <tr>
             <th>
+                Image
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProjectPriority)
+            </th>
+            <th>
+                PM
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Created)
@@ -35,15 +45,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
             </th>
-            <th>
-                Image
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Company)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProjectPriority)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -52,10 +53,19 @@
         {
             <tr>
                 <td>
+                    <img src='@fileService.ConvertByteArrayToFile(item.ImageData!, item.ImageType!,(int)DefaultImage.Project)' alt="..." style="width:100px;height:100px">
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProjectPriority!.Name)
+                </td>
+                <td>
+                    @((await projectService.GetProjectManagerAsync(item.Id)!)?.FullName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Created)
@@ -70,20 +80,10 @@
                     @Html.DisplayFor(modelItem => item.Archived)
                 </td>
                 <td>
-
-                        <img src='@fileService.ConvertByteArrayToFile(item.ImageData!, item.ImageType!,(int)DefaultImage.Project)' alt="..." style="width:100px;height:100px">
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Company.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProjectPriority.Name)
-                </td>
-                <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                     <a asp-action="AssignProjectManager" asp-route-id="@item.Id">Assign PM</a>
+                    <a asp-action="AssignProjectMembers" asp-route-id="@item.Id">Assign Members</a>
                     <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
                 </td>
             </tr>

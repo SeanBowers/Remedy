@@ -25,6 +25,7 @@ namespace Remedy.Models
 
         public bool ArchivedByProject { get; set; }
 
+        //Foreign Key
         public int ProjectId { get; set; }
 
         public int TicketTypeId { get; set; }

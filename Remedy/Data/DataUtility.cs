@@ -208,6 +208,34 @@ namespace Remedy.Data
                 throw;
             }
 
+            //Seed Default ProjectManager12 User
+            defaultUser = new BTUser
+            {
+                UserName = "project12@remedy.com",
+                Email = "project12@remedy.com",
+                FirstName = "Project12",
+                LastName = "User12",
+                EmailConfirmed = true,
+                CompanyId = company1Id
+            };
+            try
+            {
+                var user = await userManager.FindByEmailAsync(defaultUser.Email);
+                if (user == null)
+                {
+                    await userManager.CreateAsync(defaultUser, "1qaz2wsx#EDC$RFV");
+                    await userManager.AddToRoleAsync(defaultUser, nameof(BTRoles.ProjectManager));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("*************  ERROR  *************");
+                Console.WriteLine("Error Seeding Default ProjectManager1 User.");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("***********************************");
+                throw;
+            }
+
 
             //Seed Default ProjectManager2 User
             defaultUser = new BTUser

@@ -76,3 +76,100 @@
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Updated
+            </th>
+            <th>
+                Archived
+            </th>
+            <th>
+                ArchivedByProject
+            </th>
+            <th>
+                Company
+            </th>
+            <th>
+                Project
+            </th>
+            <th>
+                TicketPriority
+            </th>
+            <th>
+                TicketType
+            </th>
+            <th>
+                TicketStatus
+            </th>
+            <th>
+                DeveloperUser
+            </th>
+            <th>
+                SubmitterUser
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Tickets) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Updated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Archived)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArchivedByProject)
+            </td>
+            <td>
+                @item.Project!.Company!.Name
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Project.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TicketPriority.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TicketType.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TicketStatus.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeveloperUser.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-controller="Tickets" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-controller="Tickets" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Archive" asp-controller="Tickets" asp-route-id="@item.Id">Archive</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
