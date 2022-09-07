@@ -1,6 +1,4 @@
 ﻿@model IEnumerable<Remedy.Models.Ticket>
-@using Remedy.Services.Interfaces;
-@inject IBTProjectService projectService
 
 @{
     ViewData["Title"] = "Index";
@@ -31,6 +29,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ArchivedByProject)
+            </th>
+            <th>
+                Company
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Project)
@@ -76,6 +77,9 @@
                     @Html.DisplayFor(modelItem => item.ArchivedByProject)
                 </td>
                 <td>
+                    @item.Project!.Company!.Name
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Project.Name)
                 </td>
                 <td>
@@ -103,7 +107,7 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                    <a asp-action="Restore" asp-route-id="@item.Id">Restore</a>
                 </td>
             </tr>
         }

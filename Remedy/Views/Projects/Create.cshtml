@@ -16,7 +16,7 @@
             </div>
             <div>
                 <input type="file" asp-for="ProjectImg" class="form-control" accept=".png,.jpg,.jpeg,.gif"
-                       onchange="document.getElementById('imageData').src = window.URL.createObjectURL(this.files[0])" />
+                onchange="document.getElementById('imageData').src = window.URL.createObjectURL(this.files[0])" />
                 <span asp-validation-for="ProjectImg" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -43,6 +43,14 @@
                 <label asp-for="ProjectPriorityId" class="control-label"></label>
                 <select asp-for="ProjectPriorityId" class="form-control" asp-items="ViewBag.ProjectPriorityId"></select>
             </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="form-group">
+                    <label class="control-label">Assign Project Manager</label>
+                    <select name="PMID" class="form-control" asp-items="ViewBag.ProjectManager"></select>
+                </div>
+            }
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

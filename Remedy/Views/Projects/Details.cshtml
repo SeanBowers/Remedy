@@ -14,58 +14,58 @@
     <hr />
     <dl class="row">
 
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Created)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Created)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.StartDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.StartDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.EndDate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.EndDate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Archived)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Archived)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Company)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Company.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ProjectPriority)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ProjectPriority.Id)
         </dd>
     </dl>
     <dl>
         <dd>
-            @foreach(var user in Model.Members!)
+            @foreach (var user in Model.Members!)
             {
                 <p>@user.FullName</p>
             }
@@ -123,53 +123,61 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Tickets) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Updated)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Archived)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ArchivedByProject)
-            </td>
-            <td>
-                @item.Project!.Company!.Name
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Project.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TicketPriority.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TicketType.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TicketStatus.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeveloperUser.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-controller="Tickets" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-controller="Tickets" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Archive" asp-controller="Tickets" asp-route-id="@item.Id">Archive</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Tickets)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Updated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ArchivedByProject)
+                </td>
+                <td>
+                    @item.Project!.Company!.Name
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Project.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketPriority.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketStatus.Name)
+                </td>
+                <td>
+                    @if (item.DeveloperUserId != null)
+                    {
+                        @item.DeveloperUser!.FullName
+                    }
+                    else
+                    {
+                        <a asp-action="AssignTicketDeveloper" asp-route-id="@item.Id">Assign Dev</a>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-controller="Tickets" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-controller="Tickets" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Archive" asp-controller="Tickets" asp-route-id="@item.Id">Archive</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

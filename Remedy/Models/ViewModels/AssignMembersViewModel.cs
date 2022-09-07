@@ -10,11 +10,6 @@ namespace Remedy.Models.ViewModels
 
         public MultiSelectList? SubList { get; set; }
 
-        //public string? DevID { get; set; }
-
-        //public List<BTUser>? DevIDs { get; set; }
-
-        //public List<BTUser>? SubIDs { get; set; }
         public string? DevID { get; set; }
 
         public string? SubID { get; set; }

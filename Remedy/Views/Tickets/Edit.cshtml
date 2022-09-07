@@ -28,26 +28,6 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            @*<div class="form-group">
-            <label asp-for="Created" class="control-label"></label>
-            <input asp-for="Created" class="form-control" />
-            <span asp-validation-for="Created" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-            <label asp-for="Updated" class="control-label"></label>
-            <input asp-for="Updated" class="form-control" />
-            <span asp-validation-for="Updated" class="text-danger"></span>
-            </div>*@
-            @*<div class="form-group form-check">
-            <label class="form-check-label">
-            <input class="form-check-input" asp-for="ArchivedByProject" /> @Html.DisplayNameFor(model => model.ArchivedByProject)
-            </label>
-            </div>*@
-            @*<div class="form-group">
-            <label asp-for="ProjectId" class="control-label"></label>
-            <select asp-for="ProjectId" class="form-control" asp-items="ViewBag.ProjectId"></select>
-            <span asp-validation-for="ProjectId" class="text-danger"></span>
-            </div>*@
             <div class="form-group">
                 <label asp-for="TicketTypeId" class="control-label"></label>
                 <select asp-for="TicketTypeId" class="form-control" asp-items="ViewBag.TicketTypeId"></select>
@@ -60,7 +40,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="TicketStatusId" class="control-label"></label>
-                @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                @if (User.IsInRole("Admin, ProjectManager"))
                 {
                     <select asp-for="TicketStatusId" class="form-control" asp-items="ViewBag.TicketStatusId"></select>
                 }
@@ -73,7 +53,7 @@
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                    @if (User.IsInRole("Admin, ProjectManager"))
                     {
                         <input class="form-check-input" asp-for="Archived" /> @Html.DisplayNameFor(model => model.Archived)
                     }
@@ -83,16 +63,19 @@
                     }
                 </label>
             </div>
-            @*<div class="form-group">
-            <label asp-for="DeveloperUserId" class="control-label"></label>
-            <select asp-for="DeveloperUserId" class="form-control" asp-items="ViewBag.DeveloperUserId"></select>
-            <span asp-validation-for="DeveloperUserId" class="text-danger"></span>
-            </div>
+
             <div class="form-group">
-            <label asp-for="SubmitterUserId" class="control-label"></label>
-            <select asp-for="SubmitterUserId" class="form-control" asp-items="ViewBag.SubmitterUserId"></select>
-            <span asp-validation-for="SubmitterUserId" class="text-danger"></span>
-            </div>*@
+                <label class="control-label">Assign Ticket Developer</label>
+                @if (User.IsInRole("Admin , ProjectManager"))
+                {
+                    <select name="DevId" class="form-control" asp-items="ViewBag.TicketDevelopers"></select>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="DeveloperUserId">
+                    <select name="DevId" class="form-control" asp-items="ViewBag.TicketDevelopers"></select>
+                }
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

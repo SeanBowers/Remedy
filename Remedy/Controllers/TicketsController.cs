@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
 using Remedy.Models;
 using Remedy.Models.Enums;
+using Remedy.Models.ViewModels;
+using Remedy.Services.Interfaces;
 
 namespace Remedy.Controllers
 {
@@ -18,11 +20,21 @@ namespace Remedy.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
+        private readonly IBTTicketService _ticketService;
+        private readonly IBTProjectService _projectService;
+        private readonly IBTRolesService _rolesService;
 
-        public TicketsController(ApplicationDbContext context, UserManager<BTUser> userManager)
+        public TicketsController(ApplicationDbContext context, 
+                                UserManager<BTUser> userManager,
+                                IBTTicketService ticketService,
+                                IBTProjectService projectService,
+                                IBTRolesService rolesService)
         {
             _context = context;
             _userManager = userManager;
+            _ticketService = ticketService;
+            _projectService = projectService;
+            _rolesService = rolesService;
         }
 
         // GET: Tickets
@@ -30,16 +42,76 @@ namespace Remedy.Controllers
         {
             var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
             var ticket = await _context.Tickets!
-                .Include(t => t.DeveloperUser)
                 .Include(t => t.Project)
                 .ThenInclude(t => t.Company)
+                .Include(t => t.DeveloperUser)
                 .Include(t => t.SubmitterUser)
                 .Include(t => t.TicketPriority)
                 .Include(t => t.TicketStatus)
                 .Include(t => t.TicketType)
-                .Where(t => !t.Archived && !t.ArchivedByProject)
+                .Where(t => !t.Archived && !t.ArchivedByProject && t.Project!.CompanyId == companyId)
+                .OrderByDescending(t => t.ProjectId)
+                .ThenByDescending(t => t.TicketPriority)
                 .ToListAsync();
             return View(ticket);
+        }
+
+        // GET: Tickets
+        public async Task<IActionResult> UnassignedTickets()
+        {
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            var ticket = await _context.Tickets!
+                .Include(t => t.Project)
+                .ThenInclude(t => t.Company)
+                .Include(t => t.DeveloperUser)
+                .Include(t => t.SubmitterUser)
+                .Include(t => t.TicketPriority)
+                .Include(t => t.TicketStatus)
+                .Include(t => t.TicketType)
+                .Where(t => !t.Archived && !t.ArchivedByProject && t.Project!.CompanyId == companyId && t.DeveloperUser == null)
+                .ToListAsync();
+            return View(ticket);
+        }
+
+        [Authorize(Roles = "Admin, ProjectManager")]
+        // GET: AssignProjectManager
+        public async Task<IActionResult> AssignTicketDeveloper(int? id)
+        {
+            if (id == null) { return NotFound(); }
+
+            AssignDeveloperViewModel model = new();
+
+            model.Ticket = await _ticketService.GetTicketByIdAsync(id.Value);
+
+            var projectDevIds = (await _projectService.GetProjectDevelopersAsync(model.Ticket.ProjectId)!);
+            var currentDevIds = (await _projectService.GetProjectDevelopersAsync(model.Ticket.ProjectId)!).Select(s => s.Id);
+
+            model.DevList = new SelectList(projectDevIds, "Id", "FullName", currentDevIds);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignTicketDeveloper(AssignDeveloperViewModel model)
+        {
+            if (!string.IsNullOrEmpty(model.DevID))
+            {
+                await _ticketService.AddTicketDeveloperAsync(model.DevID, model.Ticket!.Id);
+
+                TempData["success"] = "Ticket Developer Assigned!";
+                return RedirectToAction(nameof(Index));
+            };
+
+            model.Ticket = await _ticketService.GetTicketByIdAsync(model.Ticket!.Id);
+
+            var projectDevIds = (await _projectService.GetProjectDevelopersAsync(model.Ticket.ProjectId)!);
+            var currentDevIds = (await _projectService.GetProjectDevelopersAsync(model.Ticket.ProjectId)!).Select(s => s.Id);
+
+            model.DevList = new SelectList(projectDevIds, "Id", "FullName", currentDevIds);
+
+            TempData["error"] = "No Developer Chosen! Please select a Developer.";
+            return View(model);
         }
 
         // GET: Tickets/Details/5
@@ -109,6 +181,10 @@ namespace Remedy.Controllers
             {
                 return NotFound();
             }
+            var projectDevIds = (await _projectService.GetProjectDevelopersAsync(ticket.ProjectId)!);
+            var currentDevIds = (await _projectService.GetProjectDevelopersAsync(ticket.ProjectId)!).Select(s => s.Id);
+
+            ViewData["TicketDevelopers"] = new SelectList(projectDevIds, "Id", "FullName", currentDevIds);
             ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
             ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
             ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name", ticket.TicketTypeId);
@@ -118,7 +194,7 @@ namespace Remedy.Controllers
         // POST: Tickets/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Created,Updated,Archived,ArchivedByProject,ProjectId,TicketTypeId,TicketStatusId,TicketPriorityId,DeveloperUserId,SubmitterUserId")] Ticket ticket)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Created,Updated,Archived,ArchivedByProject,ProjectId,TicketTypeId,TicketStatusId,TicketPriorityId,DeveloperUserId,SubmitterUserId")] Ticket ticket, string? DevId)
         {
             if (id != ticket.Id)
             {
@@ -133,6 +209,10 @@ namespace Remedy.Controllers
                     ticket.Updated = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                     _context.Update(ticket);
                     await _context.SaveChangesAsync();
+                    if (!string.IsNullOrEmpty(DevId))
+                    {
+                        await _ticketService.AddTicketDeveloperAsync(DevId, ticket.Id);
+                    };
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -207,7 +287,7 @@ namespace Remedy.Controllers
                 .Include(t => t.TicketPriority)
                 .Include(t => t.TicketStatus)
                 .Include(t => t.TicketType)
-                .Where(t => t.Archived || t.ArchivedByProject)
+                .Where(t => t.Archived || t.ArchivedByProject && t.Project!.CompanyId == companyId)
                 .ToListAsync();
             return View(ticket);
         }

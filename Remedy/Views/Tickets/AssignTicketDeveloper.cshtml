@@ -1,0 +1,34 @@
+﻿@model Remedy.Models.ViewModels.AssignDeveloperViewModel
+
+@{
+    ViewData["Title"] = "Assign Ticket Developer";
+}
+
+<h1>Project : @Model.Ticket?.Title</h1>
+
+<h4>Assign Ticket Developer</h4>
+<hr />
+<div class="row card">
+    <div class="col-md-4">
+        <form method="post" asp-action="AssignTicketDeveloper" asp-controller="Tickets">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input hidden asp-for="Ticket!.Id" />
+
+            <h2>@Model.Ticket?.Title </h2>
+
+            <p>@Model.Ticket?.Description </p>
+
+            <div class="form-group">
+                <label class="control-label">Select Developer</label>
+                <select asp-for="DevID" class="form-control" asp-items="@Model.DevList">
+                    <option></option>
+                </select>
+                <span asp-validation-for="DevID" class="text-danger"></span>
+            </div>
+                <input type="submit" value="Assign" class="btn btn-primary" />
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

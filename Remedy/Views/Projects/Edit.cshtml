@@ -56,6 +56,17 @@
                 <select asp-for="ProjectPriorityId" class="form-control" asp-items="ViewBag.ProjectPriorityId"></select>
                 <span asp-validation-for="ProjectPriorityId" class="text-danger"></span>
             </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="form-group">
+                    <label class="control-label">Assign Project Manager</label>
+                    <select name="PMID" class="form-control" asp-items="ViewBag.ProjectManager"></select>
+                </div>
+            }
+            else
+            {
+
+            }
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

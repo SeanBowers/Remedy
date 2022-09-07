@@ -162,17 +162,19 @@ namespace Remedy.Controllers
 
         // GET: Projects/Create
         [Authorize(Roles = "Admin, ProjectManager")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
             // TODO: Abstract the use of _context
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name");
+            ViewData["ProjectManager"] = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId), "Id", "FullName");
             return View();
         }
 
         // POST: Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,StartDate,EndDate,ProjectPriorityId,ProjectImg")] Project project)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,StartDate,EndDate,ProjectPriorityId,ProjectImg, Members")] Project project, string? PMID)
         {
             if (ModelState.IsValid)
             {
@@ -188,6 +190,10 @@ namespace Remedy.Controllers
                 }
                 TempData["success"] = "Project Created Successfully!";
                 await _projectService.AddProjectAsync(project);
+                if (!string.IsNullOrEmpty(PMID))
+                {
+                    await _projectService.AddProjectManagerAsync(PMID, project!.Id);
+                };
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
@@ -206,14 +212,17 @@ namespace Remedy.Controllers
             {
                 return NotFound();
             }
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            string? currentPMId = (await _projectService.GetProjectManagerAsync(project.Id)!)?.Id;
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
+            ViewData["ProjectManager"] = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId), "Id", "FullName", currentPMId);
             return View(project);
         }
 
         // POST: Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageData,ImageType,ProjectImg")] Project project)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageData,ImageType,ProjectImg")] Project project, string? PMID)
         {
             if (id != project.Id)
             {
@@ -233,6 +242,10 @@ namespace Remedy.Controllers
                         project.ImageType = project.ProjectImg.ContentType;
                     }
                     await _projectService.UpdateProjectAsync(project);
+                    if (!string.IsNullOrEmpty(PMID))
+                    {
+                        await _projectService.AddProjectManagerAsync(PMID, project!.Id);
+                    };
                 }
                 catch (DbUpdateConcurrencyException)
                 {
