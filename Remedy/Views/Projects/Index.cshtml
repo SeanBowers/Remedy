@@ -65,7 +65,13 @@
                     @Html.DisplayFor(modelItem => item.ProjectPriority!.Name)
                 </td>
                 <td>
-                    @((await projectService.GetProjectManagerAsync(item.Id)!)?.FullName)
+                    @{BTUser pm = await projectService.GetProjectManagerAsync(item.Id)!;}
+                    @if(pm != null)
+                    {
+                        @pm.FullName;
+                    } else {
+                        <a asp-action="AssignProjectManager" asp-route-id="@item.Id">Assign PM</a>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Created)

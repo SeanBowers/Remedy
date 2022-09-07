@@ -100,9 +100,8 @@ namespace Remedy.Controllers
 
             model.Project = await _projectService.GetProjectByIdAsync(id.Value);
 
-            var currentDevIds = (await _projectService.GetProjectDevelopersAsync(model.Project.Id)!);
-
-            var currentSubIds = (await _projectService.GetProjectSubmittersAsync(model.Project.Id)!);
+            var currentDevIds = (await _projectService.GetProjectDevelopersAsync(model.Project.Id)!).Select(s => s.Id);
+            var currentSubIds = (await _projectService.GetProjectSubmittersAsync(model.Project.Id)!).Select(s => s.Id);
 
             model.DevList = new MultiSelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId), "Id", "FullName", currentDevIds);
             model.SubList = new MultiSelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId), "Id", "FullName", currentSubIds);
@@ -117,7 +116,6 @@ namespace Remedy.Controllers
         {
             if (model.SubID != null || model.DevID != null)
             {
-                SubID.AddRange(DevID);
                 var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
                 var devs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
                 var subs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
@@ -126,10 +124,12 @@ namespace Remedy.Controllers
                 {
                     await _projectService.RemoveUserFromProjectAsync(user, model.Project!.Id);
                 }
+
+                SubID.AddRange(DevID);
                 foreach (var id in SubID)
                 {
                     var user = await _context.Users.FindAsync(id);
-                    await _projectService.AddUserToProjectAsync(user, model.Project.Id);
+                    await _projectService.AddUserToProjectAsync(user!, model.Project!.Id);
                 }
 
                 TempData["success"] = "Members Assigned!";
