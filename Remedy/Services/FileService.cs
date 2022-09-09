@@ -4,6 +4,7 @@ namespace Blog.Services
 {
     public class FileService : IFileService
     {
+        private readonly string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
         private readonly string _defaultCompanyImageSrc = "/img/DefaultCompanyImage.png";
         private readonly string _defaultProjectImageSrc = "/img/DefaultProjectImage.png";
         private readonly string _defaultProfileImageSrc = "/img/DefaultProfileImage.png";
@@ -45,6 +46,24 @@ namespace Blog.Services
             {
                 throw;
             }
+        }
+        public string GetFileIcon(string file)
+        {
+            string ext = Path.GetExtension(file).Replace(".", "");
+            return $"/img/contenttype/{ext}.png";
+        }
+
+
+        public string FormatFileSize(long bytes)
+        {
+            int counter = 0;
+            decimal number = bytes;
+            while (Math.Round(number / 1024) >= 1)
+            {
+                number /= 1024;
+                counter++;
+            }
+            return string.Format("{0:n1}{1}", number, suffixes[counter]);
         }
     }
 }

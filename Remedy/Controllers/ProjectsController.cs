@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
+using Remedy.Extensions;
 using Remedy.Models;
 using Remedy.Models.Enums;
 using Remedy.Models.ViewModels;
@@ -40,7 +41,8 @@ namespace Remedy.Controllers
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            int companyId = User.Identity!.GetCompanyId();
+
             var projects = await _projectService.GetProjectsAsync(companyId);
             return View(projects);
         }
@@ -53,7 +55,7 @@ namespace Remedy.Controllers
 
             AssignPMViewModel model = new();
 
-            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            int companyId = User.Identity!.GetCompanyId();
 
             model.Project = await _projectService.GetProjectByIdAsync(id.Value);
 
@@ -76,7 +78,7 @@ namespace Remedy.Controllers
                 return RedirectToAction(nameof(Index));
             };
 
-            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            int companyId = User.Identity!.GetCompanyId();
 
             model.Project = await _projectService.GetProjectByIdAsync(model.Project!.Id);
 
@@ -96,7 +98,7 @@ namespace Remedy.Controllers
 
             AssignMembersViewModel model = new();
 
-            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            int companyId = User.Identity!.GetCompanyId();
 
             model.Project = await _projectService.GetProjectByIdAsync(id.Value);
 
@@ -116,7 +118,7 @@ namespace Remedy.Controllers
         {
             if (model.SubID != null || model.DevID != null)
             {
-                var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+                int companyId = User.Identity!.GetCompanyId();
                 var devs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
                 var subs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
                 devs.AddRange(subs);
@@ -179,7 +181,7 @@ namespace Remedy.Controllers
             if (ModelState.IsValid)
             {
                 // TODO: Make CompanyId retrieval more efficient.
-                project.CompanyId = (await _userManager.GetUserAsync(User)).CompanyId;
+                int companyId = User.Identity!.GetCompanyId();
                 project.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                 project.StartDate = DateTime.SpecifyKind(project.StartDate!.Value, DateTimeKind.Utc);
                 project.EndDate = DateTime.SpecifyKind(project.EndDate!.Value, DateTimeKind.Utc);

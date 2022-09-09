@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -23,18 +24,21 @@ namespace Remedy.Controllers
         private readonly IBTTicketService _ticketService;
         private readonly IBTProjectService _projectService;
         private readonly IBTRolesService _rolesService;
+        private readonly IFileService _fileService;
 
         public TicketsController(ApplicationDbContext context, 
                                 UserManager<BTUser> userManager,
                                 IBTTicketService ticketService,
                                 IBTProjectService projectService,
-                                IBTRolesService rolesService)
+                                IBTRolesService rolesService,
+                                IFileService fileService)
         {
             _context = context;
             _userManager = userManager;
             _ticketService = ticketService;
             _projectService = projectService;
             _rolesService = rolesService;
+            _fileService = fileService;
         }
 
         // GET: Tickets
@@ -129,6 +133,8 @@ namespace Remedy.Controllers
                 .Include(t => t.TicketPriority)
                 .Include(t => t.TicketStatus)
                 .Include(t => t.TicketType)
+                .Include(t => t.TicketAttachments)
+                .Include(t => t.TicketComments!).ThenInclude(t => t.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticket == null)
             {
@@ -136,6 +142,60 @@ namespace Remedy.Controllers
             }
 
             return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateComment([Bind("Id,Comment,Created,TicketId,UserId")] TicketComment ticketComment)
+        {
+            ModelState.Remove("UserId");
+            if (ModelState.IsValid)
+            {
+                ticketComment.UserId = _userManager.GetUserId(User);
+                ticketComment.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                _context.Add(ticketComment);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "Tickets", new { id = ticketComment.TicketId });
+            }
+            return View(Details);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,Description,TicketId")] TicketAttachment ticketAttachment)
+        {
+            string statusMessage;
+
+            if (ModelState.IsValid && ticketAttachment.FormFile != null)
+            {
+                ticketAttachment.FileData = await _fileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+                ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
+                ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
+
+                ticketAttachment.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                ticketAttachment.UserId = _userManager.GetUserId(User);
+
+                await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+                statusMessage = "Success: New attachment added to Ticket.";
+            }
+            else
+            {
+                statusMessage = "Error: Invalid data.";
+
+            }
+
+            return RedirectToAction("Details", new { id = ticketAttachment.TicketId, message = statusMessage });
+        }
+
+        public async Task<IActionResult> ShowFile(int id)
+        {
+            TicketAttachment ticketAttachment = await _ticketService.GetTicketAttachmentByIdAsync(id);
+            string fileName = ticketAttachment.FileName!;
+            byte[] fileData = ticketAttachment.FileData!;
+            string ext = Path.GetExtension(fileName)!.Replace(".", "");
+
+            Response.Headers.Add("Content-Disposition", $"inline; filename={fileName}");
+            return File(fileData, $"application/{ext}");
         }
 
         // GET: Tickets/Create

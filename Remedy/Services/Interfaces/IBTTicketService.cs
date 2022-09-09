@@ -12,5 +12,9 @@ namespace Remedy.Services.Interfaces
         public Task<Ticket> GetTicketByIdAsync(int id);
 
         public Task<bool> AddTicketDeveloperAsync(string userId, int ticketId);
+
+        public Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment);
+
+        public Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId);
     }
 }
