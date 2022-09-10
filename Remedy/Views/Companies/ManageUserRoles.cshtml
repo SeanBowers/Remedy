@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Remedy.Models.ViewModels.ManageUserRolesViewModel>
+<header class="page-header">
+    <h2>Manage Member Roles</h2>
+
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+
+            <li><span>Admin</span></li>
+
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+<div class="row">
+    <div class="card col-12 m-3">
+        <div class="card-body">
+            <p class="text-muted font-13 m-b-30">
+                Use the dropdown to select the role(s) the user should be assigned.
+                Once roles are selected, click "Assign Roles" to submit the form.
+            </p>
+        </div>
+    </div>
+    <hr />
+    @foreach (var member in Model)
+    {
+        <div class="col-4">
+            <section class="card mb-4">
+                <header class="card-header">
+                    <h2 class="card-title">@member.BTUser!.FullName</h2>
+                </header>
+                <div class="card-body">
+                    <form asp-action="ManageUserRoles" asp-controller="Companies" method=post>
+                        <input type="hidden" asp-for="@member.BTUser!.Id" />
+                        <div class="form-group">
+                            <select asp-for="@member.SelectedRoles" class="form-control" asp-items="@member.Roles">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Assign Role" class="btn btn-info" />
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    }
+</div>

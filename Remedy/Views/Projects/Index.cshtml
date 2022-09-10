@@ -9,9 +9,26 @@
     ViewData["Title"] = "Index";
 }
 <partial name="_Notification" />
+<header class="page-header">
+    <h2>All Projects</h2>
 
-<h1>Index</h1>
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
 
+            <li><span>Layouts</span></li>
+
+            <li><span>Default</span></li>
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -65,11 +82,16 @@
                     @Html.DisplayFor(modelItem => item.ProjectPriority!.Name)
                 </td>
                 <td>
-                    @{BTUser pm = await projectService.GetProjectManagerAsync(item.Id)!;}
-                    @if(pm != null)
+                    @{
+                        BTUser pm = await projectService.GetProjectManagerAsync(item.Id)!;
+                    }
+                    @if (pm != null)
                     {
-                        @pm.FullName;
-                    } else {
+                        @pm.FullName
+                        ;
+                    }
+                    else
+                    {
                         <a asp-action="AssignProjectManager" asp-route-id="@item.Id">Assign PM</a>
                     }
                 </td>
