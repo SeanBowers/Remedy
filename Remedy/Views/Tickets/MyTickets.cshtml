@@ -3,7 +3,7 @@
 @inject IBTProjectService projectService
 
 <header class="page-header">
-    <h2>Unassigned Tickets</h2>
+    <h2>My Tickets</h2>
 
     <div class="right-wrapper text-end">
         <ol class="breadcrumbs">
@@ -29,12 +29,10 @@
     <div class="col">
         <section class="card">
             <header class="card-header">
-                <h2 class="card-title">Unassigned Tickets</h2>
+                <h2 class="card-title">My Tickets</h2>
             </header>
             <div class="card-body">
-
                 <table class="table table-bordered table-striped mb-0" id="datatable-default">
-
                     <thead>
                         <tr>
                             <th>
@@ -71,7 +69,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                         @foreach (var item in Model)
                         {
                             <tr>
@@ -126,16 +123,25 @@
     </div>
 </div>
 @section Scripts{
+    @*<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script>
+
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+        });
+
+    </script>*@
     <script src="~/vendor/select2/js/select2.js"></script>
-    <script src="~/vendor/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="~/vendor/datatables/media/js/jquery.dataTables.js"></script>
     <script src="~/vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/dataTables.buttons.min.js"></script>
     <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.bootstrap4.min.js"></script>
     <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.html5.min.js"></script>
     <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.print.min.js"></script>
     <script src="~/vendor/datatables/extras/TableTools/JSZip-2.5.0/jszip.min.js"></script>
-    <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/pdfmake.js"></script>
     <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
 
     <script src="~/js/examples/examples.datatables.default.js"></script>
+
 }

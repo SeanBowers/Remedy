@@ -116,6 +116,40 @@ namespace Remedy.Services
             }
         }
 
+        public async Task<List<Ticket>> GetTicketsByUserIdAsync(string userId, int companyId)
+        {
+            try
+            {
+                BTUser? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                List<Ticket> tickets = new();
+
+                if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.Admin)))
+                {
+                    tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).ToList();
+                }
+                //else if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.ProjectManager)))
+                //{
+                //    tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).ToList();
+                //}
+                else if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.Developer)))
+                {
+                    tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).Where(t => t.DeveloperUserId == userId || t.SubmitterUserId == userId).ToList();
+                }
+                else if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.Submitter)))
+                {
+                    tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).Where(t => t.SubmitterUserId == userId).ToList();
+                }
+
+                return tickets;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment)
         {
             try

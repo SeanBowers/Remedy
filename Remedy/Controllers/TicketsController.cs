@@ -26,7 +26,7 @@ namespace Remedy.Controllers
         private readonly IBTRolesService _rolesService;
         private readonly IFileService _fileService;
 
-        public TicketsController(ApplicationDbContext context, 
+        public TicketsController(ApplicationDbContext context,
                                 UserManager<BTUser> userManager,
                                 IBTTicketService ticketService,
                                 IBTProjectService projectService,
@@ -60,11 +60,21 @@ namespace Remedy.Controllers
             return View(ticket);
         }
 
+        public async Task<IActionResult> MyTickets()
+        {
+            var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
+            var user = _userManager.GetUserId(User);
+
+            List<Ticket> tickets = await _ticketService.GetTicketsByUserIdAsync(user, companyId);
+
+            return View(tickets);
+        }
+
         // GET: Tickets
         public async Task<IActionResult> UnassignedTickets()
         {
             var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
-            var ticket = await _context.Tickets!
+            var tickets = await _context.Tickets!
                 .Include(t => t.Project)
                 .ThenInclude(t => t.Company)
                 .Include(t => t.DeveloperUser)
@@ -74,7 +84,7 @@ namespace Remedy.Controllers
                 .Include(t => t.TicketType)
                 .Where(t => !t.Archived && !t.ArchivedByProject && t.Project!.CompanyId == companyId && t.DeveloperUser == null)
                 .ToListAsync();
-            return View(ticket);
+            return View(tickets);
         }
 
         [Authorize(Roles = "Admin, ProjectManager")]
