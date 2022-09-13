@@ -11,13 +11,13 @@ namespace Remedy.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
-        private readonly IFileService _fileService;
+        private readonly IBTFileService _fileService;
         private readonly IBTRolesService _rolesService;
         private readonly IBTProjectService _projectService;
 
         public BTTicketService(ApplicationDbContext context,
                                   UserManager<BTUser> userManager,
-                                  IFileService fileService,
+                                  IBTFileService fileService,
                                   IBTRolesService rolesService,
                                   IBTProjectService projectService)
         {
@@ -127,10 +127,10 @@ namespace Remedy.Services
                 {
                     tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).ToList();
                 }
-                //else if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.ProjectManager)))
-                //{
-                //    tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).ToList();
-                //}
+                else if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.ProjectManager)))
+                {
+                    tickets = (await _projectService.GetUserProjectsAsync(userId)).SelectMany(p => p.Tickets!).ToList();
+                }
                 else if (await _rolesService.IsUserInRoleAsync(user!, nameof(BTRoles.Developer)))
                 {
                     tickets = (await _projectService.GetProjectsAsync(companyId)).SelectMany(p => p.Tickets!).Where(t => t.DeveloperUserId == userId || t.SubmitterUserId == userId).ToList();
@@ -168,10 +168,10 @@ namespace Remedy.Services
         {
             try
             {
-                TicketAttachment ticketAttachment = await _context.TicketAttachments
+                TicketAttachment? ticketAttachment = await _context.TicketAttachments!
                                                                   .Include(t => t.User)
                                                                   .FirstOrDefaultAsync(t => t.Id == ticketAttachmentId);
-                return ticketAttachment;
+                return ticketAttachment!;
             }
             catch (Exception)
             {
@@ -180,5 +180,34 @@ namespace Remedy.Services
             }
         }
 
+        public Task AddNewTicketAsync(Ticket ticket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateTicketAsync(Ticket ticket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ArchiveTicketAsync(Ticket ticket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RestoreTicketAsync(Ticket ticket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Ticket>> GetArchivedTicketsAsync(int companyId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddTicketCommentAsync(TicketComment ticketComment)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

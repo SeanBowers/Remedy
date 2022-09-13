@@ -1,92 +1,116 @@
 ﻿@using Remedy.Models.Enums
 @model Remedy.Models.Ticket
-
-@{
-    ViewData["Title"] = "Edit";
-}
-
-<h1>Edit</h1>
-
-<h4>Ticket</h4>
-<hr />
+<header class="page-header">
+    <h2>Edit Ticket</h2>
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a asp-action="Index">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+            <li><span>Tickets</span></li>
+        </ol>
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="Created" />
-            <input type="hidden" asp-for="Updated" />
-            <input type="hidden" asp-for="ProjectId" />
-            <input type="hidden" asp-for="SubmitterUserId" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TicketTypeId" class="control-label"></label>
-                <select asp-for="TicketTypeId" class="form-control" asp-items="ViewBag.TicketTypeId"></select>
-                <span asp-validation-for="TicketTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TicketPriorityId" class="control-label"></label>
-                <select asp-for="TicketPriorityId" class="form-control" asp-items="ViewBag.TicketPriorityId"></select>
-                <span asp-validation-for="TicketPriorityId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TicketStatusId" class="control-label"></label>
-                @if (User.IsInRole("Admin, ProjectManager"))
-                {
-                    <select asp-for="TicketStatusId" class="form-control" asp-items="ViewBag.TicketStatusId"></select>
-                }
-                else
-                {
-                    <input type="hidden" asp-for="TicketStatusId">
-                    <select asp-for="TicketStatusId" class="form-control" asp-items="ViewBag.TicketStatusId" disabled></select>
-                }
-                <span asp-validation-for="TicketStatusId" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    @if (User.IsInRole("Admin, ProjectManager"))
-                    {
-                        <input class="form-check-input" asp-for="Archived" /> @Html.DisplayNameFor(model => model.Archived)
-                    }
-                    else
-                    {
-                        <input class="form-check-input" asp-for="Archived" disabled /> @Html.DisplayNameFor(model => model.Archived)
-                    }
-                </label>
-            </div>
+    <div class="col">
+        <section class="card card-modern card-big-info">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2-5 col-xl-1-5">
+                        <i class="card-big-info-icon bx bx-purchase-tag-alt"></i>
+                        <h2 class="card-big-info-title">Ticket Details</h2>
+                        <p class="card-big-info-desc">Enter basic information for your ticket.</p>
+                    </div>
+                    <div class="col-lg-3-5 col-xl-4-5">
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="Created" />
+                            <input type="hidden" asp-for="Updated" />
+                            <input type="hidden" asp-for="ProjectId" />
+                            <input type="hidden" asp-for="SubmitterUserId" />
+                            <input type="hidden" asp-for="ProjectId" />
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Title</label>
+                                <div class="col-lg-7 col-xl-6">
+                                    <input asp-for="Title" type="text" class="form-control form-control-modern">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end pt-2 mt-1 mb-0">Description</label>
+                                <div class="col-lg-7 col-xl-6">
+                                    <textarea asp-for="Description" class="form-control form-control-modern" rows="4"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Ticket Type</label>
+                                <div class="col-lg-7 col-xl-6">
+                                    <select asp-for="TicketTypeId" class="form-control form-control-modern" asp-items="ViewBag.TicketTypeId"></select>
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Ticket Priority</label>
+                                <div class="col-lg-7 col-xl-6">
+                                    <select asp-for="TicketPriorityId" class="form-control form-control-modern" asp-items="ViewBag.TicketPriorityId"></select>
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Ticket Status</label>
+                                <div class="col-lg-7 col-xl-6">
+                                @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                                {
+                                    <select asp-for="TicketStatusId" class="form-control form-control-modern" asp-items="ViewBag.TicketStatusId"></select>
+                                }
+                                else
+                                {
+                                    <input type="hidden" asp-for="TicketStatusId">
+                                    <select asp-for="TicketStatusId" class="form-control form-control-modern" asp-items="ViewBag.TicketStatusId" disabled></select>
+                                }
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Archive Ticket</label>
+                                <div class="col-lg-7 col-xl-6">
+                                    @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                                    {
+                                        <input class="form-check-input form-control-modern" asp-for="Archived" /> @Html.DisplayNameFor(model => model.Archived)
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input form-control-modern" asp-for="Archived" disabled /> @Html.DisplayNameFor(model => model.Archived)
+                                    }
+                                    </div>
+                            </div>
 
-            <div class="form-group">
-                <label class="control-label">Assign Ticket Developer</label>
-                @if (User.IsInRole("Admin , ProjectManager"))
-                {
-                    <select name="DevId" class="form-control" asp-items="ViewBag.TicketDevelopers"></select>
-                }
-                else
-                {
-                    <input type="hidden" asp-for="DeveloperUserId">
-                    <select name="DevId" class="form-control" asp-items="ViewBag.TicketDevelopers"></select>
-                }
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Assign Developer</label>
+                                <div class="col-lg-7 col-xl-6">
+                                @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                                {
+                                    <select name="DevId" class="form-control form-control-modern" asp-items="ViewBag.TicketDevelopers"></select>
+                                }
+                                else
+                                {
+                                    <input type="hidden" asp-for="DeveloperUserId">
+                                    <select name="DevId" class="form-control form-control-modern" asp-items="ViewBag.TicketDevelopers"></select>
+                                }
+                                </div>
+                            </div>
+                            <div class="row action-buttons">
+                                <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
+                                    <input type="submit" value="Save" class="btn btn-success btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </section>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

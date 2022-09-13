@@ -10,11 +10,14 @@ namespace Remedy.Services.Interfaces
         //Get Archived Project by Company Id
         public Task<List<Project>> GetArchivedProjectsAsync(int companyId);
 
-        //Add Project
-        public Task AddProjectAsync(Project project);
-
         //Get Project by Id
         public Task<Project> GetProjectByIdAsync(int projectId);
+
+        public Task<List<Project>> GetUserProjectsAsync(string userId);
+
+
+        //Add Project
+        public Task AddProjectAsync(Project project);
 
         //Update Project
         public Task UpdateProjectAsync(Project project);
@@ -24,6 +27,8 @@ namespace Remedy.Services.Interfaces
 
         //Restore Project
         public Task RestoreProjectAsync(int projectId);
+
+
 
         //Get Project Manager for specific project
         public Task<BTUser>? GetProjectManagerAsync(int projectId);

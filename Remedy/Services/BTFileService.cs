@@ -2,7 +2,7 @@
 
 namespace Blog.Services
 {
-    public class FileService : IFileService
+    public class BTFileService : IBTFileService
     {
         private readonly string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
         private readonly string _defaultCompanyImageSrc = "/img/DefaultCompanyImage.png";

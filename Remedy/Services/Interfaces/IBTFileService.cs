@@ -1,6 +1,6 @@
 ﻿namespace Remedy.Services.Interfaces
 {
-    public interface IFileService
+    public interface IBTFileService
     {
         public Task<byte[]> ConvertFileToByteArrayAsync(IFormFile file);
 

@@ -8,7 +8,7 @@
     <div class="right-wrapper text-end">
         <ol class="breadcrumbs">
             <li>
-                <a href="index.html">
+                <a asp-action="Index">
                     <i class="bx bx-home-alt"></i>
                 </a>
             </li>
@@ -36,34 +36,37 @@
                     <thead>
                         <tr>
                             <th>
-                                @Html.DisplayNameFor(model => model.Title)
+                                Id
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.Description)
+                                Title
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.Created)
+                                Description
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.Updated)
+                                Created
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.Project)
+                                Last Updated
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.TicketPriority)
+                                Project
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.TicketType)
+                                Priority
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.TicketStatus)
+                                Type
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.DeveloperUser)
+                                Status
                             </th>
                             <th>
-                                @Html.DisplayNameFor(model => model.SubmitterUser)
+                                Assigned To
+                            </th>
+                            <th>
+                                Submitted By
                             </th>
                             <th></th>
                         </tr>
@@ -72,6 +75,9 @@
                         @foreach (var item in Model)
                         {
                             <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Id)
+                                </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Title)
                                 </td>
@@ -85,16 +91,16 @@
                                     @Html.DisplayFor(modelItem => item.Updated)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.Project.Name)
+                                    @Html.DisplayFor(modelItem => item.Project!.Name)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.TicketPriority.Name)
+                                    @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.TicketType.Name)
+                                    @Html.DisplayFor(modelItem => item.TicketType!.Name)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.TicketStatus.Name)
+                                    @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
                                 </td>
                                 <td>
                                     @if (item.DeveloperUserId != null)
@@ -103,16 +109,16 @@
                                     }
                                     else
                                     {
-                                        <a asp-action="AssignTicketDeveloper" asp-route-id="@item.Id">Assign Dev</a>
+                                        <a asp-action="AssignTicketDeveloper" asp-route-id="@item.Id">Assign Developer</a>
                                     }
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
+                                    @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                                    <a asp-action="Archive" asp-route-id="@item.Id">Archive</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit"><i class='bx bx-sm bx-edit '></i></a> 
+                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details"><i class='bx bx-sm bx-detail'></i></a> 
+                                    <a asp-action="Archive" asp-route-id="@item.Id" title="Archive"><i class='bx bx-sm bx-archive'></i></a>
                                 </td>
                             </tr>
                         }
@@ -123,14 +129,6 @@
     </div>
 </div>
 @section Scripts{
-    @*<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    <script>
-
-        $(document).ready(function() {
-            $('#myTable').DataTable();
-        });
-
-    </script>*@
     <script src="~/vendor/select2/js/select2.js"></script>
     <script src="~/vendor/datatables/media/js/jquery.dataTables.js"></script>
     <script src="~/vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>

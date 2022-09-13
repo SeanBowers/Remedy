@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Remedy.Services.Interfaces
 @inject SignInManager<BTUser> SignInManager
 @inject UserManager<BTUser> UserManager
+@inject IBTRolesService roleService
 @{
     BTUser btUser = await UserManager.GetUserAsync(User);
 }
@@ -11,10 +13,10 @@
     <!-- Basic -->
     <meta charset="UTF-8">
 
-    <title>Default Layout | Porto Admin - Responsive HTML5 Template</title>
-    <meta name="keywords" content="HTML5 Admin Template" />
-    <meta name="description" content="Porto Admin - Responsive HTML5 Template">
-    <meta name="author" content="okler.net">
+    <title>Remedy | ITSM</title>
+    <meta name="keywords" content="ticket itsm" />
+    <meta name="description" content="Ticket Tracking Application">
+    <meta name="author" content="seanbowers.dev">
 
     <!-- Mobile Metas -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -24,7 +26,7 @@
 
     <!-- Vendor CSS -->
     <link rel="stylesheet" href="~/vendor/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="~/vendor/animate/animate.compat.css">
+    <link rel="stylesheet" href="~/vendor/animate/animate.compat.css" />
     <link rel="stylesheet" href="~/vendor/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="~/vendor/boxicons/css/boxicons.min.css" />
     <link rel="stylesheet" href="~/vendor/magnific-popup/magnific-popup.css" />
@@ -239,7 +241,11 @@
                         </figure>
                         <div class="profile-info" data-lock-name="@btUser.FullName" data-lock-email="@btUser.UserName">
                             <span class="name">@btUser.FullName</span>
-                            <span class="role">Administrator</span>
+                            @foreach( var role in await roleService.GetUserRolesAsync(btUser))
+                            {
+                                <span class="role">@role</span>
+                            }
+                            
                         </div>
 
                         <i class="fa custom-caret"></i>
@@ -371,8 +377,8 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="nav-link" href="pages-recover-password.html">
-                                                Recover Password
+                                            <a class="nav-link" asp-area="" asp-controller="Invites" asp-action="Create">
+                                                Send Invite
                                             </a>
                                         </li>
                                         <li>
@@ -459,7 +465,22 @@
 
             </aside>
             <!-- end: sidebar -->
-
+            @if (TempData["success"] != null)
+            {
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+                <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+                <script type="text/javascript">
+                    toastr.success('@TempData["success"]')
+                </script>
+            }
+            @if (TempData["error"] != null)
+            {
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+                <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+                <script type="text/javascript">
+                    toastr.warning('@TempData["error"]')
+                </script>
+            }
             <section role="main" class="content-body">
                 @RenderBody()
             </section>

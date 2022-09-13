@@ -1,34 +1,57 @@
 ﻿@model Remedy.Models.ViewModels.AssignDeveloperViewModel
+<header class="page-header">
+    <h2>Assign Ticket Developer</h2>
 
-@{
-    ViewData["Title"] = "Assign Ticket Developer";
-}
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a asp-action="Index">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
 
-<h1>Project : @Model.Ticket?.Title</h1>
+            <li><span>Tickets</span></li>
+            <li><span>Ticket Details</span></li>
 
-<h4>Assign Ticket Developer</h4>
-<hr />
-<div class="row card">
-    <div class="col-md-4">
-        <form method="post" asp-action="AssignTicketDeveloper" asp-controller="Tickets">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input hidden asp-for="Ticket!.Id" />
+        </ol>
 
-            <h2>@Model.Ticket?.Title </h2>
-
-            <p>@Model.Ticket?.Description </p>
-
-            <div class="form-group">
-                <label class="control-label">Select Developer</label>
-                <select asp-for="DevID" class="form-control" asp-items="@Model.DevList">
-                    <option></option>
-                </select>
-                <span asp-validation-for="DevID" class="text-danger"></span>
-            </div>
-                <input type="submit" value="Assign" class="btn btn-primary" />
-        </form>
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
     </div>
-</div>
-<div>
-    <a asp-action="Index">Back to List</a>
+</header>
+<div class="row">
+    <div class="col">
+        <section class="card card-modern card-big-info">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2-5 col-xl-1-5">
+                        <i class="card-big-info-icon bx bx-purchase-tag-alt"></i>
+                        <h2 class="card-big-info-title">Ticket Details</h2>
+                        <p class="card-big-info-desc">
+                            @Model.Ticket?.Title 
+                            @Model.Ticket?.Description
+                            </p>
+                    </div>
+                    <div class="col-lg-3-5 col-xl-4-5">
+                        <form method="post" asp-action="AssignTicketDeveloper" asp-controller="Tickets">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input hidden asp-for="Ticket!.Id" />
+                            
+                            <div class="form-group row align-items-center mb-3">
+                                <label class="col-lg-5 col-xl-3 control-label text-lg-end mb-0">Project Developers</label>
+                                <div class="col-lg-7 col-xl-6">
+                                    <select asp-for="DevID" class="form-control form-control-modern" asp-items="@Model.DevList"></select>
+                                </div>
+                            </div>
+                            
+                            <div class="row action-buttons">
+                                <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
+                                    <input type="submit" value="Assign" class="btn btn-success btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
