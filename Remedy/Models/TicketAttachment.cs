@@ -28,7 +28,7 @@ namespace Remedy.Models
         [DisplayName("Select a file")]
         [DataType(DataType.Upload)]
         [MaxFileSize(1024 * 1024)]
-        [AllowedExtensions(new string[] { ".jpg", ".png", ".doc", ".docx", ".xls", ".xlsx", ".pdf" })]
+        [AllowedExtensions(new string[] { ".jpg", ".png", ".doc", ".docx", ".xls", ".xlsx", ".pdf", ".txt" })]
         public IFormFile? FormFile { get; set; }
 
         //------------------Navigation------------------

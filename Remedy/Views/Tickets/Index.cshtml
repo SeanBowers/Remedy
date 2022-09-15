@@ -4,7 +4,6 @@
 
 <header class="page-header">
     <h2>All Tickets</h2>
-
     <div class="right-wrapper text-end">
         <ol class="breadcrumbs">
             <li>
@@ -12,16 +11,11 @@
                     <i class="bx bx-home-alt"></i>
                 </a>
             </li>
-
             <li><span>Tickets</span></li>
-
-
         </ol>
-
         <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
     </div>
 </header>
-
 <p>
     <a type="button" class="mb-1 mt-1 me-1 btn btn-success" asp-action="Create">Create New</a>
 </p>
@@ -32,9 +26,7 @@
                 <h2 class="card-title">All Tickets</h2>
             </header>
             <div class="card-body">
-
                 <table class="table table-bordered table-striped mb-0" id="datatable-default">
-
                     <thead>
                         <tr>
                             <th>
@@ -119,9 +111,7 @@
                                     @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit"><i class='bx bx-sm bx-edit '></i></a> 
-                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details"><i class='bx bx-sm bx-detail'></i></a> 
-                                    <a asp-action="Archive" asp-route-id="@item.Id" title="Archive"><i class='bx bx-sm bx-archive'></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a> 
                                 </td>
                             </tr>
                         }
@@ -144,5 +134,4 @@
     <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
 
     <script src="~/js/examples/examples.datatables.default.js"></script>
-
 }

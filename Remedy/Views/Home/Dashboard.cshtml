@@ -1,1 +1,433 @@
-﻿
+﻿@using Remedy.Services.Interfaces
+@model Remedy.Models.ViewModels.DashboardViewModel
+@inject IBTRolesService rolesService;
+@inject IBTTicketService ticketService;
+@{
+    ViewData["Title"] = "Dashboard";
+    @* Instantiate the btUser *@
+}
+<header class="page-header">
+    <h2>Dashboard</h2>
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a asp-action="Index">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+            <li><span>Home</span></li>
+        </ol>
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+<div class="row">
+    <div class="col-3">
+        <section class="card mb-4">
+            <div class="card-body bg-primary">
+                <div class="widget-summary">
+                    <div class="widget-summary-col widget-summary-col-icon">
+                        <div class="summary-icon">
+                            <i class="bx bx-clipboard"></i>
+                        </div>
+                    </div>
+                    <div class="widget-summary-col">
+                        <div class="summary">
+                            <h4 class="title">Projects</h4>
+                            <div class="info">
+                                <strong class="amount">@Model.Projects.Count()</strong>
+                            </div>
+                        </div>
+                        <div class="summary-footer">
+                            <a class="text-uppercase" asp-action="Index" asp-controller="Projects">(view all)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="col-3">
+        <section class="card mb-4">
+            <div class="card-body bg-tertiary">
+                <div class="widget-summary">
+                    <div class="widget-summary-col widget-summary-col-icon">
+                        <div class="summary-icon">
+                            <i class="bx bx-purchase-tag-alt"></i>
+                        </div>
+                    </div>
+                    <div class="widget-summary-col">
+                        <div class="summary">
+                            <h4 class="title">Tickets</h4>
+                            <div class="info">
+                                <strong class="amount">@Model.Tickets.Count()</strong>
+                            </div>
+                        </div>
+                        <div class="summary-footer">
+                            <a class="text-uppercase" asp-action="Index" asp-controller="Tickets">(view all)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="col-3">
+        <section class="card mb-4">
+            <div class="card-body bg-secondary">
+                <div class="widget-summary">
+                    <div class="widget-summary-col widget-summary-col-icon">
+                        <div class="summary-icon">
+                            <i class="bx bx-error"></i>
+                        </div>
+                    </div>
+                    <div class="widget-summary-col">
+                        <div class="summary">
+                            <h4 class="title">Unassigned Tickets</h4>
+                            <div class="info">
+                                <strong class="amount">4</strong>
+                            </div>
+                        </div>
+                        <div class="summary-footer">
+                            <a class="text-uppercase" asp-action="UnassignedTickets" asp-controller="Tickets">(view all)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="col-3">
+        <section class="card mb-4">
+            <div class="card-body bg-quaternary">
+                <div class="widget-summary">
+                    <div class="widget-summary-col widget-summary-col-icon">
+                        <div class="summary-icon">
+                            <i class="bx bx-user"></i>
+                        </div>
+                    </div>
+                    <div class="widget-summary-col">
+                        <div class="summary">
+                            <h4 class="title">Members</h4>
+                            <div class="info">
+                                <strong class="amount">@Model.Members.Count()</strong>
+                            </div>
+                        </div>
+                        <div class="summary-footer">
+                            <a class="text-uppercase">(view all)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-3">
+        <section class="card card-featured card-featured-primary mb-4">
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                </div>
+
+                <h2 class="card-title">Members</h2>
+                <p class="card-subtitle">by company</p>
+            </header>
+            <div class="card-body">
+                <table class="table table-responsive-md mb-0">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.Members)
+                        {
+                            <tr>
+                                <td>
+                                    @member.FullName
+                                </td>
+                                <td>
+                                    @foreach (var role in await rolesService.GetUserRolesAsync(member))
+                                    {
+                                        @role
+                                    }
+                                </td>
+                            </tr>
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-3">
+        <section class="card card-featured card-featured-primary mb-4">
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                </div>
+
+                <h2 class="card-title">Projects</h2>
+            </header>
+            <div class="card-body">
+                <table class="table table-responsive-md mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Project</th>
+                            <th>Members</th>
+                            <th>Tickets</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var project in Model.Projects)
+                        {
+                            <tr>
+                                <td>
+                                    @project.Id
+                                </td>
+                                <td>
+                                    @project.Name
+                                </td>
+                                <td>
+                                    @project.Members.Count()
+                                </td>
+                                <td>
+                                    @project.Tickets.Count()
+                                </td>
+                                <td>
+                                    Active
+                                </td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm" asp-action="Details" asp-controller="Projects" asp-route-id="@project.Id">Details</a>
+                                </td>
+                            </tr>
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-3">
+        <section class="card card-featured card-featured-primary mb-4">
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                </div>
+
+                <h2 class="card-title">Projects</h2>
+                <p class="card-subtitle">by priority</p>
+            </header>
+            <div class="card-body">
+                <div id="chart3D"></div>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-3">
+        <section class="card card-featured card-featured-primary mb-4">
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                </div>
+
+                <h2 class="card-title">Ticket Distribution</h2>
+                <p class="card-subtitle">by project</p>
+            </header>
+            <div class="card-body">
+                <div id="donut"></div>
+            </div>
+        </section>
+    </div>
+    
+    <div class="col-lg-8">
+        <section class="card">
+            <header class="card-header">
+                <h2 class="card-title">All Tickets</h2>
+            </header>
+            <div class="card-body">
+                <table class="table table-bordered table-striped mb-0" id="datatable-default">
+                    <thead>
+                        <tr>
+                            <th>
+                                Id
+                            </th>
+                            <th>
+                                Title
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                            <th>
+                                Created
+                            </th>
+                            <th>
+                                Last Updated
+                            </th>
+                            <th>
+                                Project
+                            </th>
+                            <th>
+                                Priority
+                            </th>
+                            <th>
+                                Type
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Assigned To
+                            </th>
+                            <th>
+                                Submitted By
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model.Tickets)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Id)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Title)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Created)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Updated)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Project!.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TicketType!.Name)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
+                                </td>
+                                <td>
+                                    @if (item.DeveloperUserId != null)
+                                    {
+                                        @item.DeveloperUser!.FullName
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="AssignTicketDeveloper" asp-route-id="@item.Id">Assign Dev</a>
+                                    }
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Scripts{
+    <!--Google Charts-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+        google.load("visualization", "1", { packages: ["corechart"] });
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+            $.ajax({
+                type: "POST",
+                url: "/Home/GglProjectPriority",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(result) {
+                    var data = google.visualization.arrayToDataTable(result);
+
+                    //3D Pie
+                    var options = {
+                        title: 'Project Priority',
+                        is3D: true,
+                        chartArea: { left: 0, bottom: 15, width: '100%', height: '100%' },
+                        legend: { position: 'bottom' }
+
+                    };
+
+                    var chart = new google.visualization.PieChart($("#chart3D")[0]);
+                    chart.draw(data, options);
+                },
+                failure: function(rresult) {
+                    alert(result.d);
+                },
+                error: function(result) {
+                    alert(result.d);
+                }
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        google.load("visualization", "1", { packages: ["corechart"] });
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+            $.ajax({
+                type: "POST",
+                url: "/Home/GglProjectTickets",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(result) {
+                    var data = google.visualization.arrayToDataTable(result);
+
+                    //Donut
+                    var options = {
+                        title: 'Company Ticket Distribution',
+                        pieHole: 0.3,
+                        chartArea: { left: 0, bottom: 15, width: '100%', height: '100%' },
+                        legend: { position: 'bottom' }
+                    };
+                    var chart = new google.visualization.PieChart($("#donut")[0]);
+                    chart.draw(data, options);
+                },
+                failure: function(rresult) {
+                    alert(result.d);
+                },
+                error: function(result) {
+                    alert(result.d);
+                }
+            });
+        }
+    </script>
+    <script src="~/vendor/select2/js/select2.js"></script>
+    <script src="~/vendor/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.html5.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.print.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/pdfmake.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
+
+    <script src="~/js/examples/examples.datatables.default.js"></script>
+}

@@ -56,13 +56,13 @@
                                 <div class="btn-group d-flex" role="group">
                                     <a asp-action="Details" asp-route-id="@Model?.Project.Id" asp-controller="Projects" class="btn btn-primary w-100" role="button">Project Details</a>
                                     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning w-100" role="button">Edit Ticket</a>
-                                    @if (Model!.Archived)
+                                    @if (@Model.Archived == false)
                                     {
-                                        <a asp-action="Restore" asp-route-id="@Model?.Id" class="btn btn-success w-100" role="button">Restore Ticket</a>
+                                        <a asp-action="Archive" asp-route-id="@Model?.Id" class="btn btn-danger w-100" role="button">Archive Ticket</a>
                                     }
                                     else
                                     {
-                                        <a asp-action="Archive" asp-route-id="@Model?.Id" class="btn btn-danger w-100" role="button">Archive Ticket</a>
+                                        <a asp-action="Restore" asp-route-id="@Model?.Id" class="btn btn-success w-100" role="button">Restore Ticket</a>
                                     }
                                 </div>
                             </div>
@@ -142,6 +142,9 @@
                         <h2 class="card-title">Attachments</h2>
                     </header>
                     <div class="card-body">
+                        <div class="row">
+
+
                         @foreach (TicketAttachment item in Model.TicketAttachments!)
                         {
                             <div class="col col-sm-2">
@@ -158,6 +161,7 @@
                                 </div>
                             </div>
                         }
+                        </div>
                         <hr />
                         <form asp-action="AddTicketAttachment" asp-controller="Tickets" enctype="multipart/form-data" method="post">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -165,7 +169,7 @@
                             <div class="form-row">
                                 <div class="form-group col pb-1 mb-3">
                                     <label>Attach File</label>
-                                    <input asp-for="@Model.TicketAttachments.FirstOrDefault().FormFile" type="file" class="form-control form-control-modern"></input>
+                                    <input asp-for="@Model.TicketAttachments.FirstOrDefault().FormFile" type="file" class="form-control form-control-modern">
                                     <label>Add File Description</label>
                                     <textarea asp-for="@Model.TicketAttachments.FirstOrDefault().Description" type="text" class="form-control form-control-modern" rows="1"></textarea>
                                 </div>
@@ -187,7 +191,23 @@
                 <h2 class="card-title">History</h2>
             </header>
             <div class="card-body">
-                <code>.card-featured</code>
+                @foreach (var history in Model.TicketHistories!)
+                {
+                    <section class="card card-featured card-featured-warning mb-4">
+                        <header class="card-header">
+                            <h2 class="card-title">@history.PropertyName</h2>
+                        </header>
+                        <div class="card-body">
+                            @history.Created
+                            <br />
+                            @history.Description
+                            <br />
+                            @history.OldValue
+                            <br />
+                            @history.NewValue
+                        </div>
+                    </section>
+                }
             </div>
         </section>
     </div>

@@ -25,6 +25,8 @@ namespace Remedy.Services.Interfaces
         //submitter sees tickets they've submitted. developer sees tickets they are assigned.
         public Task<List<Ticket>> GetTicketsByUserIdAsync(string userId, int companyId);
 
+        public Task<Ticket> GetTicketAsNoTrackingAsync(int ticketId, int compandId);
+
         //Add ticket attachment
         public Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment);
         //Get ticket attachment by id

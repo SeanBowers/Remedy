@@ -135,7 +135,7 @@ namespace Remedy.Controllers
                 }
 
                 TempData["success"] = "Members Assigned!";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Projects", new { id = model.Project!.Id });
             };
 
             return View(model);
@@ -180,8 +180,7 @@ namespace Remedy.Controllers
         {
             if (ModelState.IsValid)
             {
-                // TODO: Make CompanyId retrieval more efficient.
-                int companyId = User.Identity!.GetCompanyId();
+                project.CompanyId = User.Identity!.GetCompanyId();
                 project.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                 project.StartDate = DateTime.SpecifyKind(project.StartDate!.Value, DateTimeKind.Utc);
                 project.EndDate = DateTime.SpecifyKind(project.EndDate!.Value, DateTimeKind.Utc);
@@ -196,7 +195,7 @@ namespace Remedy.Controllers
                 {
                     await _projectService.AddProjectManagerAsync(PMID, project!.Id);
                 };
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Projects", new { id = project.Id });
             }
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
             return View(project);
@@ -261,7 +260,7 @@ namespace Remedy.Controllers
                     }
                 }
                 TempData["success"] = "Project Edited Successfully!";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Projects", new {id=id});
             }
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id", project.ProjectPriorityId);
             return View(project);
@@ -282,7 +281,7 @@ namespace Remedy.Controllers
         {
             await _projectService.ArchiveProjectAsync(id);
             TempData["success"] = "Project Archived!";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Projects", new {id=id});
         }
 
         // GET: Projects/Restore/5
@@ -300,7 +299,7 @@ namespace Remedy.Controllers
         {
             await _projectService.RestoreProjectAsync(id);
             TempData["success"] = "Project Restored!";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Projects", new { id = id });
         }
 
         private bool ProjectExists(int id)

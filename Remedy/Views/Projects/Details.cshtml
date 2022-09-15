@@ -4,224 +4,223 @@
 
 @inject IBTFileService fileService
 @inject IBTProjectService projectService
-@{
-    ViewData["Title"] = "Details";
-}
+@inject IBTRolesService rolesService
 
-<h1>Details</h1>
+<header class="page-header">
+    <h2>Project Details</h2>
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a asp-action="Index">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+            <li><span>Project</span></li>
+        </ol>
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+<div class="row">
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-6">
+                <section class="card card-featured mb-4">
+                    <header class="card-header">
+                        <h2 class="card-title">Details</h2>
+                    </header>
+                    <div class="card-body">
+                        <h4 class="d-flex justify-content-center fw-bold">@Model.Name</h4>
+                        <p><strong>Description:</strong> @Model.Description</p>
+                        <ul class="list-unstyled">
+                            @*Ticket date*@
+                            <li><strong>Date Started:</strong> <span class="">  @Model.Created</</span></li>
+                            @*Project end date*@
+                            <li><strong>Deadline:</strong> <span class="">  @Model.EndDate</</span></li>
+                            @*Ticket type*@
+                            <li><strong>Type:</strong> <span class="">  @Model.ProjectPriority!.Name</span></li>
+                        </ul>
+                    </div>
+                    <div class="card-footer card-footer-btn-group">
+                        <a asp-action="Dashboard" asp-controller="Home"><i class="bx bx-home-alt me-1 text-4 top-3 position-relative"></i> Dashboard</a>
+                        <a asp-action="Edit" asp-route-id="@Model?.Id" asp-controller="Projects"><i class="bx bx-edit  me-1 text-4 top-3 position-relative"></i> Edit Project</a>
+                        @if (@Model.Archived == false)
+                        {
+                            <a asp-action="Archive" asp-route-id="@Model?.Id" asp-controller="Projects"><i class="bx bx-archive me-1 text-4 top-3 position-relative"></i> Archive Project</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Restore" asp-route-id="@Model?.Id" asp-controller="Projects"><i class="bx bx-archive-out me-1 text-4 top-3 position-relative"></i> Restore Project</a>
+                        }
+                    </div>
+                </section>
+            </div>
+            <div class="col-md-6">
+                    <section class="card card-featured mb-4">
+                        <header class="card-header">
+                            <div class="card-actions">
+                                <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                                <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                            </div>
 
-<div>
-    <div class="container-fluid">
-        <div class="row gy-2">
-            <div class="col-md-12 col">
-                <div class="row col-cols-2 mt-5 bg-secondary">
-                    <div class="card col m-1 p-2">
-                        <div class="body">
-                            @* Project Name *@
-                            <h5>@Model.Name</h5>
-                            @* Project Description *@
-                            <p>@Model.Description</p>
-                            <div class="progress-container progress-info m-b-25">
-                                <span class="progress-badge" style="font-size:small">Project Status</span>
-                                <div class="progress">
-                                    @* Razor code block *@
-                                    [Progress Bar code]
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: ">
-                                        @* Use Progress Bar code variable here *@
-                                        <span class="progress-value">100%</span>
-                                    </div>
+                            <h2 class="card-title">Members</h2>
+                        </header>
+                        <div class="card-body">
+                            <table class="table table-responsive-md mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var member in Model.Members)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @member.FullName
+                                            </td>
+                                            <td>
+                                                @foreach (var role in await rolesService.GetUserRolesAsync(member))
+                                                {
+                                                    @role
+                                                }
+                                            </td>
+                                        </tr>
+
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <div class="row action-buttons">
+                                <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
+                                    <a asp-action="AssignProjectMembers" asp-controller="Projects" asp-route-id="@Model.Id" class="btn btn-success btn-px-3 py-2 d-flex align-items-center font-weight-semibold line-height-1">Manage Team</a>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card col m-1 p-2">
-                        <div class="body">
-                            <ul class=" list-unstyled basic-list">
-                                <li>Start Date: <span class="">@Model.StartDate</span></li>
-                                <li>Deadline: <span class="">@Model.EndDate</span></li>
-                                <li>Priority: <span class="">@Model.ProjectPriority!.Name</span></li>
-                                @* if() logic *@
-                                @if (Model.Archived != true)
-                                {
-                                    <text>Project Archived</text>
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                    </section>
             </div>
-            <div class="col-md-4 col mt-5 ">
-                <div class="bg-secondary">
-                    <div class="card m-1 p-2">
-                        <div class="header">
-                            <h2>Project Manager</h2>
-                            <hr />
-                        </div>
-                        <div class="body" style="overflow-y:auto;height:300px;">
-                            @((await projectService.GetProjectManagerAsync(Model.Id)!)?.FullName ?? "Unassigned")
-                            @* if() logic for Avatar/Default etc *@
+            <div class="row">
+                <div class="col">
+                    <section class="card">
+                        <header class="card-header">
+                            <h2 class="card-title">Project Tickets</h2>
+                        </header>
+                        <div class="card-body">
+                            <table class="table table-bordered table-striped mb-0" id="datatable-default">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Id
+                                        </th>
+                                        <th>
+                                            Title
+                                        </th>
+                                        <th>
+                                            Description
+                                        </th>
+                                        <th>
+                                            Created
+                                        </th>
+                                        <th>
+                                            Last Updated
+                                        </th>
+                                        <th>
+                                            Project
+                                        </th>
+                                        <th>
+                                            Priority
+                                        </th>
+                                        <th>
+                                            Type
+                                        </th>
+                                        <th>
+                                            Status
+                                        </th>
+                                        <th>
+                                            Assigned To
+                                        </th>
+                                        <th>
+                                            Submitted By
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
 
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 col mt-5 ">
-                <div class="bg-secondary">
-                    <div class="card m-1 p-2">
-                        <div class="header">
-                            <h2>Project Team</h2>
-                            <hr />
-                        </div>
-                        <div class="body" style="overflow-y:auto;height:300px;">
-                            <ul class="right_chat list-unstyled mb-0">
-
-                                @foreach (var user in Model.Members!)
-                                {
-                                    <li>@user.FullName</li>
-                                }
-                                @* Logic for avatars *@
-                            </ul>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 col mt-5 ">
-                <div class="bg-dark">
-                    <div class="card m-1 p-2">
-                        <div class="header">
-                            <h2>Project Activity</h2>
-                            <hr />
-                        </div>
-                        <div class="body" style="overflow-y:auto;height:300px;background-color:antiquewhite">
-                            @* Project Activity loop *@
-                            [Project Activity  e.g. Ticket History]
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-12 col">
-                <div class="mt-5 bg-secondary">
-                    <div class="card m-1 p-2">
-                        <div class="header">
-                            <h2>Tickets</h2>
-                        </div>
-                        <div class="body">
-                            <div class="table-responsive" style="overflow-y:auto;height:600px;">
-                                <table class="table table-hover">
-                                    <thead class="">
+                                    @foreach (var item in Model.Tickets!)
+                                    {
                                         <tr>
-                                            @* Table header *@
-                                            <th>
-                                                Title
-                                            </th>
-                                            <th>
-                                                Description
-                                            </th>
-                                            <th>
-                                                Created
-                                            </th>
-                                            <th>
-                                                Updated
-                                            </th>
-                                            <th>
-                                                Archived
-                                            </th>
-                                            <th>
-                                                ArchivedByProject
-                                            </th>
-                                            <th>
-                                                Company
-                                            </th>
-                                            <th>
-                                                Project
-                                            </th>
-                                            <th>
-                                                TicketPriority
-                                            </th>
-                                            <th>
-                                                TicketType
-                                            </th>
-                                            <th>
-                                                TicketStatus
-                                            </th>
-                                            <th>
-                                                DeveloperUser
-                                            </th>
-                                            <th>
-                                                SubmitterUser
-                                            </th>
-                                            <th></th>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Id)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Title)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Description)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Created)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Updated)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Project!.Name)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.TicketType!.Name)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
+                                            </td>
+
+                                            @if (item.DeveloperUserId != null)
+                                            {
+                                                <td>
+
+                                                    @item.DeveloperUser!.FullName
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>
+                                                    Not Assigned
+                                                </td>
+                                            }
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
+                                            </td>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tickets" class="btn btn-sm btn-primary">Details</a>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @* Table body *@
-                                        @foreach (var item in Model.Tickets!)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Title)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Description)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Created)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Updated)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Archived)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.ArchivedByProject)
-                                                </td>
-                                                <td>
-                                                    @item.Project!.Company!.Name
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Project.Name)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.TicketType!.Name)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
-                                                </td>
-                                                <td>
-                                                    @if (item.DeveloperUserId != null)
-                                                    {
-                                                        @item.DeveloperUser!.FullName
-                                                    }
-                                                    else
-                                                    {
-                                                        <a asp-action="AssignTicketDeveloper" asp-route-id="@item.Id">Assign Dev</a>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
-                                                </td>
-                                                <td>
-                                                    <a asp-action="Edit" asp-controller="Tickets" asp-route-id="@item.Id">Edit</a> |
-                                                    <a asp-action="Details" asp-controller="Tickets" asp-route-id="@item.Id">Details</a> |
-                                                    <a asp-action="Archive" asp-controller="Tickets" asp-route-id="@item.Id">Archive</a>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-
+                                    }
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-
+                    </section>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@section Scripts{
+    <script src="~/vendor/select2/js/select2.js"></script>
+    <script src="~/vendor/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="~/vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.html5.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.print.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/pdfmake.js"></script>
+    <script src="~/vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
+
+    <script src="~/js/examples/examples.datatables.default.js"></script>
+}

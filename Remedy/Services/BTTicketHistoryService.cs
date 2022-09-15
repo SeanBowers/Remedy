@@ -121,8 +121,8 @@ namespace Remedy.Services
                         {
                             TicketId = newTicket.Id,
                             PropertyName = "Developer",
-                            OldValue = oldTicket.DeveloperUser!.FullName ?? "Not Assigned",
-                            NewValue = newTicket.DeveloperUser!.FullName,
+                            OldValue = oldTicket.DeveloperUser?.FullName ?? "Not Assigned",
+                            NewValue = newTicket.DeveloperUser?.FullName ?? "Not Assigned",
                             Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
                             UserId = userId,
                             Description = "Developer modified."

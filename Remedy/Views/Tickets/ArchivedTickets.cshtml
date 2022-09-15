@@ -27,7 +27,7 @@
     <div class="col">
         <section class="card">
             <header class="card-header">
-                <h2 class="card-title">My Tickets</h2>
+                <h2 class="card-title">Archived Tickets</h2>
             </header>
             <div class="card-body">
                 <table class="table table-bordered table-striped mb-0" id="datatable-default">
@@ -52,13 +52,10 @@
                                 Project
                             </th>
                             <th>
-                                Priority
+                                Archived
                             </th>
                             <th>
-                                Type
-                            </th>
-                            <th>
-                                Status
+                                Archived by Project
                             </th>
                             <th>
                                 Assigned To
@@ -92,13 +89,10 @@
                                     @Html.DisplayFor(modelItem => item.Project!.Name)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
+                                    @item.Archived
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.TicketType!.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
+                                    @item.ArchivedByProject
                                 </td>
                                 <td>
                                     @if (item.DeveloperUserId != null)
@@ -114,9 +108,7 @@
                                     @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit"><i class='bx bx-sm bx-edit '></i></a> 
-                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details"><i class='bx bx-sm bx-detail'></i></a> 
-                                    <a asp-action="Restore" asp-route-id="@item.Id" title="Restore"><i class='bx bx-sm bx-archive-out'></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a> 
                                 </td>
                             </tr>
                         }

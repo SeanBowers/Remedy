@@ -15,6 +15,8 @@ namespace Remedy.Services.Interfaces
 
         public Task<List<Project>> GetUserProjectsAsync(string userId);
 
+        public Task<List<Project>> GetAllProjectsByPriorityAsync(int companyId, string priority);
+            
 
         //Add Project
         public Task AddProjectAsync(Project project);

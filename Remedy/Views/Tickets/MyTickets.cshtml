@@ -116,9 +116,7 @@
                                     @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
                                 </td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit"><i class='bx bx-sm bx-edit '></i></a> 
-                                    <a asp-action="Details" asp-route-id="@item.Id" title="Details"><i class='bx bx-sm bx-detail'></i></a> 
-                                    <a asp-action="Archive" asp-route-id="@item.Id" title="Archive"><i class='bx bx-sm bx-archive'></i></a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a> 
                                 </td>
                             </tr>
                         }

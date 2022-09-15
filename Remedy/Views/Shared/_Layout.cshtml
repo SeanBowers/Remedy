@@ -59,7 +59,7 @@
         <header class="header">
             <div class="logo-container">
                 <a href="../4.0.0" class="logo">
-                    <img src="~/img/logo.png" width="75" height="35" alt="Porto Admin" />
+                    <img src="~/img/REMEDY.png" width="75" height="35" alt="Porto Admin" />
                 </a>
 
                 <div class="d-md-none toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html" data-fire-event="sidebar-left-opened">
@@ -287,7 +287,7 @@
 
                             <ul class="nav nav-main">
                                 <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Projects" asp-action="Index">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Dashboard">
                                         <i class="bx bx-home-alt" aria-hidden="true"></i>
                                         <span>Dashboard</span>
                                     </a>
@@ -315,16 +315,14 @@
                                                 All Projects
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="ArchivedProjects">
-                                                Archived Projects
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Create">
-                                                Create Project
-                                            </a>
-                                        </li>
+                                        @if (!User.IsInRole("Submitter"))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="ArchivedProjects">
+                                                    Archived Projects
+                                                </a>
+                                            </li>
+                                        }
                                     </ul>
                                 </li>
                                 <li class="nav-parent nav-expanded">
@@ -343,56 +341,61 @@
                                                 My Tickets
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="Index">
-                                                All Tickets
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="UnassignedTickets">
-                                                Unassigned Tickets
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="ArchivedTickets">
-                                                Archived Tickets
-                                            </a>
-                                        </li>
+                                        @if (!User.IsInRole("Submitter"))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="Index">
+                                                    All Tickets
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="UnassignedTickets">
+                                                    Unassigned Tickets
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="ArchivedTickets">
+                                                    Archived Tickets
+                                                </a>
+                                            </li>
+                                        }
                                     </ul>
                                 </li>
-                                <li class="nav-parent">
-                                    <a class="nav-link" href="#">
-                                        <i class="bx bx-lock" aria-hidden="true"></i>
-                                        <span>Admin</span>
-                                    </a>
-                                    <ul class="nav nav-children">
-                                        <li>
-                                            <a class="nav-link" href="pages-signup.html">
-                                                Company
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Companies" asp-action="ManageUserRoles">
-                                                User Managment
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="nav-link" asp-area="" asp-controller="Invites" asp-action="Create">
-                                                Send Invite
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="nav-link" href="pages-lock-screen.html">
-                                                Locked Screen
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-parent nav-expanded">
+                                        <a class="nav-link" href="#">
+                                            <i class="bx bx-lock" aria-hidden="true"></i>
+                                            <span>Admin</span>
+                                        </a>
+                                        <ul class="nav nav-children">
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Create">
+                                                    Create Project
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Company" asp-action="Edit">
+                                                    Edit Company
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Companies" asp-action="ManageUserRoles">
+                                                    User Managment
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="nav-link" asp-area="" asp-controller="Invites" asp-action="Create">
+                                                    Send Invite
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
                             </ul>
                         </nav>
 
-                        <hr class="separator" />
+                        @*<hr class="separator" />
 
                         <div class="sidebar-widget widget-tasks">
                             <div class="widget-header">
@@ -446,7 +449,7 @@
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </div>*@
                     </div>
 
                     <script>

@@ -94,6 +94,35 @@ namespace Remedy.Services
             }
         }
 
+        public async Task<Ticket> GetTicketAsNoTrackingAsync(int ticketId, int companyId)
+        {
+            try
+            {
+                Ticket? ticket = await _context.Projects!
+                                               .Where(p => p.CompanyId == companyId && !p.Archived)
+                                               .SelectMany(p => p.Tickets!)
+                                                   .Include(t => t.TicketAttachments)
+                                                   .Include(t => t.TicketComments)
+                                                   .Include(t => t.TicketHistories)
+                                                   .Include(t => t.DeveloperUser)
+                                                   .Include(t => t.SubmitterUser)
+                                                   .Include(t => t.TicketPriority)
+                                                   .Include(t => t.TicketStatus)
+                                                   .Include(t => t.TicketType)
+                                                   .Include(t => t.Project)
+                                                   .Where(t => !t.Archived && !t.ArchivedByProject)
+                                               .AsNoTracking()
+                                               .FirstOrDefaultAsync(t => t.Id == ticketId);
+                return ticket!;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<bool> AddTicketDeveloperAsync(string userId, int ticketId)
         {
             try
@@ -209,5 +238,6 @@ namespace Remedy.Services
         {
             throw new NotImplementedException();
         }
+
     }
 }

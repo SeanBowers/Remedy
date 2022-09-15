@@ -26,13 +26,17 @@ namespace Remedy.Controllers
         private readonly IBTProjectService _projectService;
         private readonly IBTRolesService _rolesService;
         private readonly IBTFileService _fileService;
+        private readonly IBTTicketHistoryService _ticketHistoryService;
+        private readonly IBTNotificationService _notificationService;
 
         public TicketsController(ApplicationDbContext context,
                                 UserManager<BTUser> userManager,
                                 IBTTicketService ticketService,
                                 IBTProjectService projectService,
                                 IBTRolesService rolesService,
-                                IBTFileService fileService)
+                                IBTFileService fileService,
+                                IBTTicketHistoryService ticketHistoryService,
+                                IBTNotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
@@ -40,6 +44,8 @@ namespace Remedy.Controllers
             _projectService = projectService;
             _rolesService = rolesService;
             _fileService = fileService;
+            _ticketHistoryService = ticketHistoryService;
+            _notificationService = notificationService;
         }
 
         // GET: Tickets
@@ -109,10 +115,38 @@ namespace Remedy.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignTicketDeveloper(AssignDeveloperViewModel model)
-        {
+        {   
             if (!string.IsNullOrEmpty(model.DevID))
             {
-                await _ticketService.AddTicketDeveloperAsync(model.DevID, model.Ticket!.Id);
+                int companyId = User.Identity!.GetCompanyId();
+                string userId = _userManager.GetUserId(User);
+
+                Ticket? oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket!.Id, companyId);
+                try
+                {
+                    await _ticketService.AddTicketDeveloperAsync(model.DevID, model.Ticket!.Id);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(model.Ticket!.Id, companyId);
+                await _ticketHistoryService.AddHistoryAsync(oldTicket, newTicket, userId);
+
+                BTUser user = await _userManager.GetUserAsync(User);
+                Notification notification = new()
+                {
+                    NotificationTypeId = (await _context.NotificationTypes!.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id,
+                    TicketId = model.Ticket.Id,
+                    Title = "New Ticket Assignment",
+                    Message = $"New Ticket: {model.Ticket.Title}, was assigned by {user.FullName}",
+                    Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                    SenderId = userId,
+                    RecipientId = model.DevID
+                };
+                await _notificationService.AddNotificationAsync(notification);
+                await _notificationService.SendEmailNotificationAsync(notification, "Ticket Assigned");
 
                 TempData["success"] = "Ticket Developer Assigned!";
                 return RedirectToAction(nameof(Index));
@@ -145,6 +179,7 @@ namespace Remedy.Controllers
                 .Include(t => t.TicketStatus)
                 .Include(t => t.TicketType)
                 .Include(t => t.TicketAttachments)
+                .Include(t => t.TicketHistories)
                 .Include(t => t.TicketComments!).ThenInclude(t => t.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticket == null)
@@ -164,11 +199,14 @@ namespace Remedy.Controllers
             {
                 ticketComment.UserId = _userManager.GetUserId(User);
                 ticketComment.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+
                 _context.Add(ticketComment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Tickets", new { id = ticketComment.TicketId });
+
+                await _ticketHistoryService.AddHistoryAsync(ticketComment.TicketId, nameof(TicketComment), ticketComment.UserId);
+
             }
-            return View(Details);
+            return RedirectToAction("Details", "Tickets", new { id = ticketComment.TicketId });
         }
 
         [HttpPost]
@@ -187,6 +225,8 @@ namespace Remedy.Controllers
                 ticketAttachment.UserId = _userManager.GetUserId(User);
 
                 await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+                await _ticketHistoryService.AddHistoryAsync(ticketAttachment.TicketId, nameof(TicketAttachment), ticketAttachment.UserId);
+
                 statusMessage = "Success: New attachment added to Ticket.";
             }
             else
@@ -227,6 +267,8 @@ namespace Remedy.Controllers
         public async Task<IActionResult> Create([Bind("Id,Title,Description,ProjectId,TicketTypeId,TicketPriorityId")] Ticket ticket)
         {
             var companyId = User.Identity!.GetCompanyId();
+            string userId = _userManager.GetUserId(User);
+
             ModelState.Remove("SubmitterUserId");
             if (ModelState.IsValid)
             {
@@ -235,7 +277,35 @@ namespace Remedy.Controllers
                 ticket.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                Ticket newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+                await _ticketHistoryService.AddHistoryAsync(null, newTicket, userId);
+
+
+                BTUser user = await _userManager.GetUserAsync(User);
+                BTUser projectManager = await _projectService.GetProjectManagerAsync(ticket.ProjectId)!;
+                Notification notification = new()
+                {
+                    NotificationTypeId = (await _context.NotificationTypes!.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id,
+                    TicketId = ticket.Id,
+                    Title = "New Ticket Added",
+                    Message = $"New Ticket: {ticket.Title} was created by {user.FullName}",
+                    Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+                    SenderId = userId,
+                    RecipientId = projectManager?.Id
+                };
+                await _notificationService.AddNotificationAsync(notification);
+                if(projectManager != null)
+                {
+                    await _notificationService.SendEmailNotificationAsync(notification, $"New Ticket Added for Porject: {ticket.Project!.Name}");
+                }
+                else
+                {
+                    notification.RecipientId = userId;
+                    await _notificationService.SendEmailNotificationAsync(notification, $"New Ticket Added for Porject: {ticket.Project!.Name}");
+                }
+
+                return RedirectToAction("Details", "Tickets", new {id = ticket.Id});
             }
             ViewData["ProjectId"] = new SelectList(await _projectService.GetProjectsAsync(companyId), "Id", "Name");
             ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
@@ -278,12 +348,16 @@ namespace Remedy.Controllers
 
             if (ModelState.IsValid)
             {
+                int companyId = User.Identity!.GetCompanyId();
+                string userId = _userManager.GetUserId(User);
+                Ticket? oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
                 try
                 {
                     ticket.Created = DateTime.SpecifyKind(ticket.Created, DateTimeKind.Utc);
                     ticket.Updated = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                     _context.Update(ticket);
                     await _context.SaveChangesAsync();
+
                     if (!string.IsNullOrEmpty(DevId))
                     {
                         await _ticketService.AddTicketDeveloperAsync(DevId, ticket.Id);
@@ -300,7 +374,11 @@ namespace Remedy.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                Ticket newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+                await _ticketHistoryService.AddHistoryAsync(oldTicket, newTicket, userId);
+
+                return RedirectToAction("Details", "Tickets", new { id = ticket.Id });
             }
             ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
             ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
@@ -348,7 +426,7 @@ namespace Remedy.Controllers
             }
             TempData["success"] = "Ticket Archived!";
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Tickets", new {id=id});
         }
 
         public async Task<IActionResult> ArchivedTickets()
