@@ -58,7 +58,7 @@
                         <div class="summary">
                             <h4 class="title">Tickets</h4>
                             <div class="info">
-                                <strong class="amount">@Model.Tickets.Count()</strong>
+                                <strong class="amount">@Model.Tickets!.Count()</strong>
                             </div>
                         </div>
                         <div class="summary-footer">
@@ -82,7 +82,7 @@
                         <div class="summary">
                             <h4 class="title">Unassigned Tickets</h4>
                             <div class="info">
-                                <strong class="amount">4</strong>
+                                <strong class="amount">@((await ticketService.GetArchivedTicketsAsync(@Model.Company!.Id)).Count())</strong>
                             </div>
                         </div>
                         <div class="summary-footer">

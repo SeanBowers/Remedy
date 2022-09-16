@@ -36,6 +36,7 @@ builder.Services.AddScoped<IEmailSender, BTEmailService>();
 builder.Services.AddScoped<IBTInviteService, BTInviteService>();
 builder.Services.AddScoped<IBTTicketHistoryService, BTTicketHistoryService>();
 builder.Services.AddScoped<IBTNotificationService, BTNotificationService>();
+builder.Services.AddScoped<IBTLookupService, BTLookupService>();
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 

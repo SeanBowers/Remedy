@@ -47,6 +47,14 @@ namespace Remedy.Controllers
             return View(projects);
         }
 
+        public async Task<IActionResult> MyProjects()
+        {
+            var userId = _userManager.GetUserId(User);
+            List<Project> projects = await _projectService.GetUserProjectsAsync(userId);
+
+            return View(projects);
+        }
+
         [Authorize(Roles = "Admin")]
         // GET: AssignProjectManager
         public async Task<IActionResult> AssignProjectManager(int? id)

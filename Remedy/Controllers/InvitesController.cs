@@ -16,7 +16,7 @@ using Remedy.Services.Interfaces;
 
 namespace Remedy.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class InvitesController : Controller
     {
         private readonly ApplicationDbContext _context;

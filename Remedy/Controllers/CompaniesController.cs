@@ -15,7 +15,7 @@ using Remedy.Services.Interfaces;
 
 namespace Remedy.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -30,16 +30,6 @@ namespace Remedy.Controllers
             _companyService = companyService;
             _rolesService = rolesService;
         }
-
-        //// GET: Companies
-        //public async Task<IActionResult> Index()
-        //{
-        //    var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
-        //    var company = await _context.Companies!.FirstOrDefaultAsync(c => c.Id == companyId);
-        //    return View(company);
-        //}
-
-        // GET: Companies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Companies == null)
@@ -94,26 +84,6 @@ namespace Remedy.Controllers
             }
             return RedirectToAction(nameof(ManageUserRoles));
         }
-
-        //// GET: Companies/Create
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
-
-        //// POST: Companies/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,Name,Description,ImageData,ImageType")] Company company)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(company);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(company);
-        //}
 
         // GET: Companies/Edit/5
         public async Task<IActionResult> Edit(int? id)

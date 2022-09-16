@@ -1,5 +1,78 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model IEnumerable<Remedy.Models.Project>
+@using Remedy.Enums
+@using Remedy.Services.Interfaces;
+
+@inject IBTFileService fileService
+@inject IBTProjectService projectService
+@inject IBTTicketService ticketService
+<header class="page-header">
+    <h2>All Projects</h2>
+
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+            <li><span>Projects</span></li>
+        </ol>
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-xl-3">
+            <section class="card card-featured mb-4">
+                <header class="card-header text-center">
+                    <div class="card-actions">
+                        <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                        <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                    </div>
+
+                    <h2 class="card-title">@item.Name</h2>
+                    <p class="card-subtitle">Created @item.Created.ToString("MMM dd, yyyy")</p>
+                </header>
+                <div class="card-body">
+                    <p>@item.Description</p>
+                    <div class="row text-center font-weight-semibold">
+                        <div class="col-12">
+                            @{
+                                var start = item.StartDate ?? DateTime.Now;
+                                var end = item.EndDate ?? DateTime.Now;
+                                var today = DateTime.Now;
+                                var percent = today >= end ? 100 : today < start ? 0 : Math.Round((today.Subtract(start)) / (end.Subtract(start)) * 100);
+                            }
+                            Progress
+                            <div class="progress light m-2">
+                                <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @percent%;">
+                                    @percent%
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                    <div class="row font-weight-semibold">
+                        <div class="col-4 d-flex justify-content-center">
+                            @item.Tickets!.Count() Tickets
+                        </div>
+                        <div class="col-4 d-flex justify-content-center">
+                            @item.Members!.Count() Members
+                        </div>
+                        <div class="col-4 d-flex justify-content-center">
+                            @item.ProjectPriority!.Name Priority
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="col-lg-12 d-flex justify-content-end">
+                        <div class="form-submit mt-2">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="cancel-button btn btn-primary btn-px-3 py-2 border font-weight-semibold text-3">Project Details</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    }
+</div>
