@@ -31,6 +31,17 @@ namespace Remedy.Services
             }
         }
 
+        public async Task<List<Notification>> GetUserNotificationsAsync(string userId)
+        {
+            var notifications = await _context.Notifications!
+                .Include(n => n.NotificationType)
+                .Include(n => n.Recipient)
+                .Include(n => n.Sender)
+                .Where(n => n.RecipientId == userId || n.SenderId == userId)
+                .ToListAsync();
+            return notifications;
+        }
+
         public async Task<bool> SendEmailNotificationAsync(Notification notification, string emailSubject)
         {
             try

@@ -18,33 +18,15 @@ namespace Remedy.Controllers
     [Authorize(Roles = "Admin")]
     public class CompaniesController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTCompanyService _companyService;
         private readonly IBTRolesService _rolesService;
 
-        public CompaniesController(ApplicationDbContext context, UserManager<BTUser> userManager, IBTCompanyService companyService, IBTRolesService rolesService)
+        public CompaniesController(UserManager<BTUser> userManager, IBTCompanyService companyService, IBTRolesService rolesService)
         {
-            _context = context;
             _userManager = userManager;
             _companyService = companyService;
             _rolesService = rolesService;
-        }
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Companies == null)
-            {
-                return NotFound();
-            }
-
-            var company = await _context.Companies
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (company == null)
-            {
-                return NotFound();
-            }
-
-            return View(company);
         }
 
         public async Task<IActionResult> ManageUserRoles()
@@ -54,14 +36,14 @@ namespace Remedy.Controllers
             List<BTUser> members = await _companyService.GetMembersAsync(companyId);
             List<IdentityRole> roles = await _rolesService.GetRolesAsync();
 
-            foreach(var member in members)
+            foreach (var member in members)
             {
                 models.Add(new ManageUserRolesViewModel()
                 {
-                BTUser = member,
-                Roles = new MultiSelectList(roles, "Name", "Name", await _rolesService.GetUserRolesAsync(member))
+                    BTUser = member,
+                    Roles = new MultiSelectList(roles, "Name", "Name", await _rolesService.GetUserRolesAsync(member))
                 });
-                
+
             }
 
             return View(models);
@@ -77,7 +59,7 @@ namespace Remedy.Controllers
             string? selectedRoles = member.SelectedRoles!.FirstOrDefault();
             if (!string.IsNullOrEmpty(selectedRoles))
             {
-                if(await _rolesService.RemoveUserFromRolesAsync(bTUser, currentRoles))
+                if (await _rolesService.RemoveUserFromRolesAsync(bTUser, currentRoles))
                 {
                     await _rolesService.AddUserToRoleAsync(bTUser, selectedRoles);
                 }
@@ -86,14 +68,10 @@ namespace Remedy.Controllers
         }
 
         // GET: Companies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || _context.Companies == null)
-            {
-                return NotFound();
-            }
-
-            var company = await _context.Companies.FindAsync(id);
+            int companyId = User.Identity!.GetCompanyId();
+            var company = await _companyService.GetCompanyInfoAsync(companyId);
             if (company == null)
             {
                 return NotFound();
@@ -104,7 +82,7 @@ namespace Remedy.Controllers
         // POST: Companies/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,ImageData,ImageType")] Company company)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Company company)
         {
             if (id != company.Id)
             {
@@ -115,65 +93,15 @@ namespace Remedy.Controllers
             {
                 try
                 {
-                    _context.Update(company);
-                    await _context.SaveChangesAsync();
+                    await _companyService.UpdateCompanyAsync(company);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CompanyExists(company.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Dashboard", "Home");
             }
             return View(company);
-        }
-
-        // GET: Companies/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Companies == null)
-            {
-                return NotFound();
-            }
-
-            var company = await _context.Companies
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (company == null)
-            {
-                return NotFound();
-            }
-
-            return View(company);
-        }
-
-        // POST: Companies/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Companies == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Companies'  is null.");
-            }
-            var company = await _context.Companies.FindAsync(id);
-            if (company != null)
-            {
-                _context.Companies.Remove(company);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CompanyExists(int id)
-        {
-            return (_context.Companies?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

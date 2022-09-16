@@ -6,5 +6,6 @@ namespace Remedy.Services.Interfaces
     {
         public Task AddNotificationAsync(Notification notification);
         public Task<bool> SendEmailNotificationAsync(Notification notification, string emailSubject);
+        public Task<List<Notification>> GetUserNotificationsAsync(string userId);
     }
 }

@@ -367,5 +367,29 @@ namespace Remedy.Services
 
             return projects;
         }
+
+        public async Task<bool> AddUserToProjectAsync(string userId, int projectId)
+        {
+            try
+            {
+                var project = await GetProjectByIdAsync(projectId);
+                var user = await _context.Users.FindAsync(userId);
+
+                bool onProject = !project.Members!.Any(m => m.Id == user!.Id);
+
+                if (onProject)
+                {
+                    project.Members!.Add(user!);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

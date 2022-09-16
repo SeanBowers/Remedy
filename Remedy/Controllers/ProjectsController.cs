@@ -19,23 +19,23 @@ namespace Remedy.Controllers
     [Authorize]
     public class ProjectsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTFileService _fileService;
         private readonly IBTProjectService _projectService;
         private readonly IBTRolesService _rolesService;
+        private readonly IBTLookupService _lookupService;
 
-        public ProjectsController(ApplicationDbContext context,
-                                  UserManager<BTUser> userManager,
+        public ProjectsController(UserManager<BTUser> userManager,
                                   IBTFileService fileService,
                                   IBTProjectService projectService,
-                                  IBTRolesService rolesService)
+                                  IBTRolesService rolesService,
+                                  IBTLookupService lookupService)
         {
-            _context = context;
             _userManager = userManager;
             _fileService = fileService;
             _projectService = projectService;
             _rolesService = rolesService;
+            _lookupService = lookupService;
         }
 
         // GET: Projects
@@ -136,10 +136,9 @@ namespace Remedy.Controllers
                 }
 
                 SubID.AddRange(DevID);
-                foreach (var id in SubID)
+                foreach (var userId in SubID)
                 {
-                    var user = await _context.Users.FindAsync(id);
-                    await _projectService.AddUserToProjectAsync(user!, model.Project!.Id);
+                    await _projectService.AddUserToProjectAsync(userId!, model.Project!.Id);
                 }
 
                 TempData["success"] = "Members Assigned!";
@@ -176,7 +175,7 @@ namespace Remedy.Controllers
         {
             var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
             // TODO: Abstract the use of _context
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name");
+            ViewData["ProjectPriorityId"] = new SelectList(await _lookupService.GetProjectPrioritiesAsync(), "Id", "Name");
             ViewData["ProjectManager"] = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId), "Id", "FullName");
             return View();
         }
@@ -205,7 +204,7 @@ namespace Remedy.Controllers
                 };
                 return RedirectToAction("Details", "Projects", new { id = project.Id });
             }
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
+            ViewData["ProjectPriorityId"] = new SelectList(await _lookupService.GetProjectPrioritiesAsync(), "Id", "Name", project.ProjectPriorityId);
             return View(project);
         }
 
@@ -223,7 +222,7 @@ namespace Remedy.Controllers
             }
             var companyId = (await _userManager.GetUserAsync(User)).CompanyId;
             string? currentPMId = (await _projectService.GetProjectManagerAsync(project.Id)!)?.Id;
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
+            ViewData["ProjectPriorityId"] = new SelectList(await _lookupService.GetProjectPrioritiesAsync(), "Id", "Name", project.ProjectPriorityId);
             ViewData["ProjectManager"] = new SelectList(await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId), "Id", "FullName", currentPMId);
             return View(project);
         }
@@ -258,19 +257,13 @@ namespace Remedy.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProjectExists(project.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    
+                    throw;
                 }
                 TempData["success"] = "Project Edited Successfully!";
                 return RedirectToAction("Details", "Projects", new {id=id});
             }
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id", project.ProjectPriorityId);
+            ViewData["ProjectPriorityId"] = new SelectList(await _lookupService.GetProjectPrioritiesAsync(), "Id", "Id", project.ProjectPriorityId);
             return View(project);
         }
 
@@ -310,9 +303,5 @@ namespace Remedy.Controllers
             return RedirectToAction("Details", "Projects", new { id = id });
         }
 
-        private bool ProjectExists(int id)
-        {
-            return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
     }
 }

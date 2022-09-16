@@ -15,21 +15,18 @@ namespace Remedy.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTProjectService _projectService;
         private readonly IBTCompanyService _companyService;
         private readonly IBTTicketService _ticketService;
 
         public HomeController(ILogger<HomeController> logger,
-                              ApplicationDbContext context,
                               IBTProjectService projectService,
                               UserManager<BTUser> userManager,
                               IBTCompanyService companyService,
                               IBTTicketService ticketService)
         {
             _logger = logger;
-            _context = context;
             _projectService = projectService;
             _userManager = userManager;
             _companyService = companyService;
@@ -64,7 +61,7 @@ namespace Remedy.Controllers
         [HttpPost]
         public async Task<JsonResult> GglProjectTickets()
         {
-            int companyId = User.Identity.GetCompanyId();
+            int companyId = User.Identity!.GetCompanyId();
 
             List<Project> projects = await _projectService.GetProjectsAsync(companyId);
 
@@ -81,7 +78,7 @@ namespace Remedy.Controllers
         [HttpPost]
         public async Task<JsonResult> GglProjectPriority()
         {
-            int companyId = User.Identity.GetCompanyId();
+            int companyId = User.Identity!.GetCompanyId();
 
             List<Project> projects = await _projectService.GetProjectsAsync(companyId);
 

@@ -48,5 +48,7 @@ namespace Remedy.Services.Interfaces
         public Task<bool> IsUserOnProjectAsync(string userId, int projectId);
 
         public Task<bool> AddUserToProjectAsync(BTUser user, int projectId);
+
+        public Task<bool> AddUserToProjectAsync(string userId, int projectId);
     }
 }

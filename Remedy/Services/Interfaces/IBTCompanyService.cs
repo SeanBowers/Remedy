@@ -7,5 +7,7 @@ namespace Remedy.Services.Interfaces
         public Task<List<BTUser>> GetMembersAsync(int? companyId);
 
         public Task<Company> GetCompanyInfoAsync(int? companyId);
+
+        public Task<bool> UpdateCompanyAsync(Company company);
     }
 }

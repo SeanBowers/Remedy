@@ -20,7 +20,7 @@ namespace Remedy.Services
             {
                 Company? company = new Company();
 
-                if(companyId != null)
+                if (companyId != null)
                 {
                     company = await _context.Companies!
                                             .Include(c => c.Members)
@@ -49,12 +49,29 @@ namespace Remedy.Services
                 }
                 return members;
             }
-            
+
             catch (Exception)
             {
 
                 throw;
             }
+        }
+
+        public async Task<bool> UpdateCompanyAsync(Company company)
+        {
+            try
+            {
+                _context.Update(company);
+                await _context.SaveChangesAsync();
+                return true;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return false;
         }
     }
 }

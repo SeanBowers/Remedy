@@ -19,7 +19,6 @@ namespace Remedy.Controllers
     [Authorize(Roles = "Admin")]
     public class InvitesController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IBTProjectService _projectService;
         private readonly IDataProtector _protector;
         private readonly IBTCompanyService _companyService;
@@ -27,50 +26,19 @@ namespace Remedy.Controllers
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTInviteService _inviteService;
 
-        public InvitesController(ApplicationDbContext context, 
-                                IBTProjectService projectService,
+        public InvitesController(IBTProjectService projectService,
                                 IDataProtectionProvider protector,
                                 IBTCompanyService companyService,
                                 IEmailSender emailService,
                                 UserManager<BTUser> userManager,
                                 IBTInviteService inviteService)
         {
-            _context = context;
             _projectService = projectService;
             _protector = protector.CreateProtector("MaxAlexEmilySean18July17");
             _companyService = companyService;
             _emailService = emailService;
             _userManager = userManager;
             _inviteService = inviteService;
-        }
-
-        // GET: Invites
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Invites.Include(i => i.Company).Include(i => i.Invitee).Include(i => i.Invitor).Include(i => i.Project);
-            return View(await applicationDbContext.ToListAsync());
-        }
-
-        // GET: Invites/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Invites == null)
-            {
-                return NotFound();
-            }
-
-            var invite = await _context.Invites
-                .Include(i => i.Company)
-                .Include(i => i.Invitee)
-                .Include(i => i.Invitor)
-                .Include(i => i.Project)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (invite == null)
-            {
-                return NotFound();
-            }
-
-            return View(invite);
         }
 
         // GET: Invites/Create
