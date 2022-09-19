@@ -1,6 +1,8 @@
-﻿using Remedy.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Remedy.Data;
 using Remedy.Models;
 using Remedy.Services.Interfaces;
+using System.Linq;
 
 namespace Remedy.Services
 {
@@ -183,9 +185,20 @@ namespace Remedy.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync(int projectId, int companyId)
+        public async Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync(int projectId, int companyId)
         {
-            throw new NotImplementedException();
+            Project? project = await _context.Projects!.Where(p => p.CompanyId == companyId)
+                                                     .Include(p => p.Tickets!)
+                                                     .ThenInclude(t => t.TicketHistories!)
+                                                     .ThenInclude(h => h.User)
+                                                     .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            List<TicketHistory> history = project!.Tickets!.SelectMany(t => t.TicketHistories!)
+                                                           .OrderByDescending(t => t.Created)
+                                                           .ToList();
+
+            return history;
+            
         }
     }
 }

@@ -1,10 +1,17 @@
 ﻿@using Remedy.Enums
 @model Remedy.Models.Project
 @using Remedy.Services.Interfaces;
+@using Microsoft.AspNetCore.Identity
 
+@inject UserManager<BTUser> UserManager
 @inject IBTFileService fileService
 @inject IBTProjectService projectService
 @inject IBTRolesService rolesService
+@inject IBTTicketHistoryService historyService
+
+@{
+    BTUser btUser = await UserManager.GetUserAsync(User);
+}
 
 <header class="page-header">
     <h2>Project Details</h2>
@@ -40,56 +47,47 @@
                             <li><strong>Type:</strong> <span class="">  @Model.ProjectPriority!.Name</span></li>
                         </ul>
                     </div>
-                    <div class="card-footer card-footer-btn-group">
-                        <a asp-action="Dashboard" asp-controller="Home"><i class="bx bx-home-alt me-1 text-4 top-3 position-relative"></i> Dashboard</a>
-                        <a asp-action="Edit" asp-route-id="@Model?.Id" asp-controller="Projects"><i class="bx bx-edit  me-1 text-4 top-3 position-relative"></i> Edit Project</a>
-                        @if (@Model.Archived == false)
-                        {
-                            <a asp-action="Archive" asp-route-id="@Model?.Id" asp-controller="Projects"><i class="bx bx-archive me-1 text-4 top-3 position-relative"></i> Archive Project</a>
-                        }
-                        else
-                        {
-                            <a asp-action="Restore" asp-route-id="@Model?.Id" asp-controller="Projects"><i class="bx bx-archive-out me-1 text-4 top-3 position-relative"></i> Restore Project</a>
-                        }
-                    </div>
                 </section>
             </div>
             <div class="col-md-6">
-                    <section class="card card-featured mb-4">
-                        <header class="card-header">
-                            <div class="card-actions">
-                                <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
-                                <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
-                            </div>
-
-                            <h2 class="card-title">Members</h2>
-                        </header>
-                        <div class="card-body">
-                            <table class="table table-responsive-md mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Role</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var member in Model.Members)
-                                    {
-                                        <tr>
-                                            <td>
-                                                @member.FullName
-                                            </td>
-                                            <td>
-                                                @foreach (var role in await rolesService.GetUserRolesAsync(member))
-                                                {
-                                                    @role
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                <section class="card card-featured mb-4">
+                    <header class="card-header">
+                        <div class="card-actions">
+                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                            <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
                         </div>
+
+                        <h2 class="card-title">Members</h2>
+                    </header>
+                    <div class="card-body">
+                        <table class="table table-responsive-md mb-0">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var member in Model.Members!)
+                                {
+                                    <tr>
+                                        <td>
+                                            @member.FullName
+                                        </td>
+                                        <td>
+                                            @foreach (var role in await rolesService.GetUserRolesAsync(member))
+                                            {
+                                                @role
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                    {
+
                         <div class="card-footer">
                             <div class="row action-buttons">
                                 <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
@@ -97,116 +95,154 @@
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    }
+                </section>
             </div>
-            <div class="row">
-                <div class="col">
-                    <section class="card">
-                        <header class="card-header">
-                            <h2 class="card-title">Project Tickets</h2>
-                        </header>
-                        <div class="card-body">
-                            <table class="table table-bordered table-striped mb-0" id="datatable-default">
-                                <thead>
+            <div class="col">
+                <section class="card card-featured">
+                    <header class="card-header">
+                        <h2 class="card-title">Project Tickets</h2>
+                    </header>
+                    <div class="card-body">
+                        <table class="table table-bordered table-striped mb-0" id="datatable-default">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Id
+                                    </th>
+                                    <th>
+                                        Title
+                                    </th>
+                                    <th>
+                                        Description
+                                    </th>
+                                    <th>
+                                        Created
+                                    </th>
+                                    <th>
+                                        Last Updated
+                                    </th>
+                                    <th>
+                                        Project
+                                    </th>
+                                    <th>
+                                        Priority
+                                    </th>
+                                    <th>
+                                        Type
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+                                    <th>
+                                        Assigned To
+                                    </th>
+                                    <th>
+                                        Submitted By
+                                    </th>
+                                    <th>
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.Tickets!)
+                                {
                                     <tr>
-                                        <th>
-                                            Id
-                                        </th>
-                                        <th>
-                                            Title
-                                        </th>
-                                        <th>
-                                            Description
-                                        </th>
-                                        <th>
-                                            Created
-                                        </th>
-                                        <th>
-                                            Last Updated
-                                        </th>
-                                        <th>
-                                            Project
-                                        </th>
-                                        <th>
-                                            Priority
-                                        </th>
-                                        <th>
-                                            Type
-                                        </th>
-                                        <th>
-                                            Status
-                                        </th>
-                                        <th>
-                                            Assigned To
-                                        </th>
-                                        <th>
-                                            Submitted By
-                                        </th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Id)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Title)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Description)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Created)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Updated)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Project!.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TicketType!.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
+                                        </td>
 
-                                    @foreach (var item in Model.Tickets!)
-                                    {
-                                        <tr>
+                                        @if (item.DeveloperUserId != null)
+                                        {
                                             <td>
-                                                @Html.DisplayFor(modelItem => item.Id)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Title)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Description)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Created)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Updated)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Project!.Name)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.TicketType!.Name)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
-                                            </td>
 
-                                            @if (item.DeveloperUserId != null)
-                                            {
-                                                <td>
-
-                                                    @item.DeveloperUser!.FullName
-                                                </td>
-                                            }
-                                            else
-                                            {
-                                                <td>
-                                                    Not Assigned
-                                                </td>
-                                            }
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
+                                                @item.DeveloperUser!.FullName
                                             </td>
+                                        }
+                                        else
+                                        {
                                             <td>
+                                                Not Assigned
+                                            </td>
+                                        }
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
+                                        </td>
+                                        @if (User.IsInRole("Submitter") && item.SubmitterUser != btUser)
+                                        {
+                                            <td>
+                                                Not Available
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+
                                                 <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tickets" class="btn btn-sm btn-primary">Details</a>
                                             </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
+
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <section class="card card-featured mb-3">
+            <header class="card-header">
+                <h2 class="card-title">Ticket History</h2>
+            </header>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                @foreach (var history in (await historyService.GetProjectTicketsHistoriesAsync(Model.Id, Model.CompanyId)).Take(10))
+                {
+                   <li>
+
+                        <strong>Ticket: </strong>@history.Ticket!.Title
+                        <br>
+                        <strong>Change: </strong>@history.Description
+                        <br>
+                        <small>@history.Created <cite>by @history.User!.FullName</cite></small>
+                        <hr>
+                   </li>
+                    
+                   
+                    
+                }
+            </div>
+        </section>
+    </div>
+
 </div>
 @section Scripts{
     <script src="~/vendor/select2/js/select2.js"></script>

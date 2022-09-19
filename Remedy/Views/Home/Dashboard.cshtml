@@ -1,10 +1,13 @@
-﻿@using Remedy.Services.Interfaces
+﻿@using Microsoft.AspNetCore.Identity
+@using Remedy.Services.Interfaces
+@using Remedy.Models.Enums
 @model Remedy.Models.ViewModels.DashboardViewModel
+@inject UserManager<BTUser> UserManager
 @inject IBTRolesService rolesService;
 @inject IBTTicketService ticketService;
 @{
     ViewData["Title"] = "Dashboard";
-    @* Instantiate the btUser *@
+    BTUser btUser = await UserManager.GetUserAsync(User);
 }
 <header class="page-header">
     <h2>Dashboard</h2>
@@ -21,7 +24,7 @@
     </div>
 </header>
 <div class="row">
-    <div class="col-3">
+    <div class="col-md-3">
         <section class="card mb-4">
             <div class="card-body bg-primary">
                 <div class="widget-summary">
@@ -45,7 +48,7 @@
             </div>
         </section>
     </div>
-    <div class="col-3">
+    <div class="col-md-3">
         <section class="card mb-4">
             <div class="card-body bg-tertiary">
                 <div class="widget-summary">
@@ -69,7 +72,7 @@
             </div>
         </section>
     </div>
-    <div class="col-3">
+    <div class="col-md-3">
         <section class="card mb-4">
             <div class="card-body bg-secondary">
                 <div class="widget-summary">
@@ -93,7 +96,7 @@
             </div>
         </section>
     </div>
-    <div class="col-3">
+    <div class="col-md-3">
         <section class="card mb-4">
             <div class="card-body bg-quaternary">
                 <div class="widget-summary">
@@ -119,7 +122,157 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-lg-3">
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-4">
+                <section class="card card-featured card-featured-primary mb-4">
+                    <header class="card-header">
+                        <div class="card-actions">
+                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                            <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                        </div>
+
+                        <h2 class="card-title">Projects</h2>
+                        <p class="card-subtitle">by priority</p>
+                    </header>
+                    <div class="card-body">
+                        <div id="chart3D"></div>
+                    </div>
+                </section>
+            </div>
+            <div class="col-lg-4">
+                <section class="card card-featured card-featured-primary mb-4">
+                    <header class="card-header">
+                        <div class="card-actions">
+                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                            <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                        </div>
+
+                        <h2 class="card-title">Ticket Distribution</h2>
+                        <p class="card-subtitle">by project</p>
+                    </header>
+                    <div class="card-body">
+                        <div id="donut"></div>
+                    </div>
+                </section>
+            </div>
+            <div class="col-md-4">
+                <section class="card card-featured card-featured-primary mb-4">
+                    <header class="card-header">
+                        <div class="card-actions">
+                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                            <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                        </div>
+
+                        <h2 class="card-title">Projects</h2>
+                        <p class="card-subtitle">by priority</p>
+                    </header>
+                    <div class="card-body">
+                        <div class="chart chart-sm" id="morrisTicketPriority"></div>
+                        <div id="legend" class="donut-legend text-center" style="font-size:x-small"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <section class="card card-featured card-featured-primary mb-4">
+                    <header class="card-header">
+                        <h2 class="card-title">All Tickets</h2>
+                    </header>
+                    <div class="card-body">
+                        <table class="table table-bordered table-striped mb-0" data-order="[[2, 'desc']]" id="datatable-default">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Id
+                                    </th>
+                                    <th>
+                                        Title
+                                    </th>
+                                    <th>
+                                        Created
+                                    </th>
+                                    <th>
+                                        Updated
+                                    </th>
+                                    <th>
+                                        Project
+                                    </th>
+                                    <th>
+                                        Priority
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+                                    <th>
+                                        Assigned To
+                                    </th>
+                                    <th>
+                                        Submitted By
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var item in Model.Tickets)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Id)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Title)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Created)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Updated)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Project!.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
+                                        </td>
+                                        <td>
+                                            @if (item.DeveloperUserId != null)
+                                            {
+                                                @item.DeveloperUser!.FullName
+                                            }
+                                            else
+                                            {
+                                                
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
+                                        </td>
+                                        <td>
+                                            @if (User.IsInRole("Submitter") && item.SubmitterUser != btUser)
+                                            {
+                                                
+                                            }
+                                            else
+                                            {
+                                            <a asp-controller="Tickets" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
         <section class="card card-featured card-featured-primary mb-4">
             <header class="card-header">
                 <div class="card-actions">
@@ -154,199 +307,64 @@
                             </tr>
 
                         }
-
                     </tbody>
                 </table>
             </div>
         </section>
-    </div>
-    <div class="col-lg-3">
         <section class="card card-featured card-featured-primary mb-4">
-            <header class="card-header">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
-                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
-                </div>
+                    <header class="card-header">
+                        <div class="card-actions">
+                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                            <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                        </div>
 
-                <h2 class="card-title">Projects</h2>
-            </header>
-            <div class="card-body">
-                <table class="table table-responsive-md mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Project</th>
-                            <th>Members</th>
-                            <th>Tickets</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var project in Model.Projects)
-                        {
-                            <tr>
-                                <td>
-                                    @project.Id
-                                </td>
-                                <td>
-                                    @project.Name
-                                </td>
-                                <td>
-                                    @project.Members.Count()
-                                </td>
-                                <td>
-                                    @project.Tickets.Count()
-                                </td>
-                                <td>
-                                    Active
-                                </td>
-                                <td>
-                                    <a class="btn btn-primary btn-sm" asp-action="Details" asp-controller="Projects" asp-route-id="@project.Id">Details</a>
-                                </td>
-                            </tr>
+                        <h2 class="card-title">Projects</h2>
+                    </header>
+                    <div class="card-body">
+                        <table class="table table-responsive-md mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Project</th>
+                                    <th>Members</th>
+                                    <th>Tickets</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var project in Model.Projects)
+                                {
+                                    <tr>
+                                        <td>
+                                            @project.Id
+                                        </td>
+                                        <td>
+                                            @project.Name
+                                        </td>
+                                        <td>
+                                            @project.Members!.Count()
+                                        </td>
+                                        <td>
+                                            @project.Tickets!.Count()
+                                        </td>
+                                        <td>
+                                            Active
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-primary btn-sm" asp-action="Details" asp-controller="Projects" asp-route-id="@project.Id">Details</a>
+                                        </td>
+                                    </tr>
 
-                        }
+                                }
 
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-    <div class="col-lg-3">
-        <section class="card card-featured card-featured-primary mb-4">
-            <header class="card-header">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
-                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
-                </div>
-
-                <h2 class="card-title">Projects</h2>
-                <p class="card-subtitle">by priority</p>
-            </header>
-            <div class="card-body">
-                <div id="chart3D"></div>
-            </div>
-        </section>
-    </div>
-    <div class="col-lg-3">
-        <section class="card card-featured card-featured-primary mb-4">
-            <header class="card-header">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
-                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
-                </div>
-
-                <h2 class="card-title">Ticket Distribution</h2>
-                <p class="card-subtitle">by project</p>
-            </header>
-            <div class="card-body">
-                <div id="donut"></div>
-            </div>
-        </section>
-    </div>
-    
-    <div class="col-lg-8">
-        <section class="card">
-            <header class="card-header">
-                <h2 class="card-title">All Tickets</h2>
-            </header>
-            <div class="card-body">
-                <table class="table table-bordered table-striped mb-0" id="datatable-default">
-                    <thead>
-                        <tr>
-                            <th>
-                                Id
-                            </th>
-                            <th>
-                                Title
-                            </th>
-                            <th>
-                                Description
-                            </th>
-                            <th>
-                                Created
-                            </th>
-                            <th>
-                                Last Updated
-                            </th>
-                            <th>
-                                Project
-                            </th>
-                            <th>
-                                Priority
-                            </th>
-                            <th>
-                                Type
-                            </th>
-                            <th>
-                                Status
-                            </th>
-                            <th>
-                                Assigned To
-                            </th>
-                            <th>
-                                Submitted By
-                            </th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        @foreach (var item in Model.Tickets)
-                        {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Id)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Title)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Description)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Created)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Updated)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Project!.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TicketPriority!.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TicketType!.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.TicketStatus!.Name)
-                                </td>
-                                <td>
-                                    @if (item.DeveloperUserId != null)
-                                    {
-                                        @item.DeveloperUser!.FullName
-                                    }
-                                    else
-                                    {
-                                        <a asp-action="AssignTicketDeveloper" asp-route-id="@item.Id">Assign Dev</a>
-                                    }
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.SubmitterUser!.FullName)
-                                </td>
-                                <td>
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
     </div>
 </div>
+
 
 @section Scripts{
     <!--Google Charts-->
@@ -417,6 +435,47 @@
                 }
             });
         }
+    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    <script>
+
+        var morrisDonutData = [{
+            label: "Low",
+            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "Low").Count()
+                    }, {
+            label: "Medium",
+            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "Medium").Count()
+                    }, {
+            label: "High",
+            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "High").Count()
+                    }, {
+            label: "Urgent",
+            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "Urgent").Count()
+                    }];
+
+
+        /*
+        Morris: Donut
+        */
+        if ($('#morrisTicketPriority').get(0)) {
+            var donutChart = Morris.Donut({
+                resize: true,
+                element: 'morrisTicketPriority',
+                data: morrisDonutData,
+                colors: ['#0088cc', '#734ba9', '#E36159', '#ff993b']
+            });
+
+            donutChart.options.data.forEach(function(label, i) {
+                var legendItem = $('<span></span>').text(label['label'] + ": " + label['value']).prepend('<span>&nbsp;</span>');
+                legendItem.find('span')
+                    .css('backgroundColor', donutChart.options.colors[i])
+                    .css('width', '20px')
+                    .css('display', 'inline-block')
+                    .css('margin', '10px');
+                $('#legend').append(legendItem)
+            });
+        };
     </script>
     <script src="~/vendor/select2/js/select2.js"></script>
     <script src="~/vendor/datatables/media/js/jquery.dataTables.js"></script>

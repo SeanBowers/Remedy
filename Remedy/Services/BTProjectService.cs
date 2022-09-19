@@ -56,15 +56,15 @@ namespace Remedy.Services
             try
             {
                 return (await _context.Users!.Include(u => u.Projects!).ThenInclude(p => p.Company)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Members)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Tickets!)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.DeveloperUser)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.SubmitterUser)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.TicketPriority)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.TicketStatus)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.TicketType)
-                                            .Include(u => u.Projects!).ThenInclude(p => p.ProjectPriority)
-                                            .FirstOrDefaultAsync(u => u.Id == userId))!.Projects!.ToList();
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Members)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Tickets!)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.DeveloperUser)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.SubmitterUser)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.TicketPriority)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.TicketStatus)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.Tickets!).ThenInclude(p => p.TicketType)
+                                             .Include(u => u.Projects!).ThenInclude(p => p.ProjectPriority)
+                                             .FirstOrDefaultAsync(u => u.Id == userId))!.Projects!.ToList();
             }
             catch (Exception)
             {

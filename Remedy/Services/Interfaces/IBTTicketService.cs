@@ -29,7 +29,7 @@ namespace Remedy.Services.Interfaces
         //Get tickets for users, admin see all, project manager see all project tickets
         //submitter sees tickets they've submitted. developer sees tickets they are assigned.
         public Task<List<Ticket>> GetTicketsByUserIdAsync(string userId, int companyId);
-
+        
         public Task<Ticket> GetTicketAsNoTrackingAsync(int ticketId, int compandId);
 
 

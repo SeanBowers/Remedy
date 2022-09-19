@@ -1,6 +1,13 @@
-﻿@using Remedy.Services.Interfaces
+﻿@using Microsoft.AspNetCore.Identity
+@using Remedy.Services.Interfaces
 @model Remedy.Models.Ticket
+@inject UserManager<BTUser> UserManager
 @inject IBTFileService fileService
+
+@{
+    BTUser btUser = await UserManager.GetUserAsync(User);
+}
+
 <header class="page-header">
     <h2>Edit Ticket</h2>
     <div class="right-wrapper text-end">
@@ -46,7 +53,7 @@
                 </section>
             </div>
             <div class="col-md-6">
-                <div class="row">
+                <div class="row">                        
                     <div class="col-12">
                         <section class="card card-featured mb-4">
                             <header class="card-header">
@@ -186,27 +193,23 @@
         </div>
     </div>
     <div class="col-md-3">
-        <section class="card card-featured mb-4 h-100">
+        <section class="card card-featured mb-3">
             <header class="card-header">
-                <h2 class="card-title">History</h2>
+                <h2 class="card-title">Ticket History</h2>
             </header>
             <div class="card-body">
+                <ul class="list-unstyled">
                 @foreach (var history in Model.TicketHistories!)
                 {
-                    <section class="card card-featured card-featured-warning mb-4">
-                        <header class="card-header">
-                            <h2 class="card-title">@history.PropertyName</h2>
-                        </header>
-                        <div class="card-body">
-                            @history.Created
-                            <br />
-                            @history.Description
-                            <br />
-                            @history.OldValue
-                            <br />
-                            @history.NewValue
-                        </div>
-                    </section>
+                   <li>
+
+                        <strong>Ticket: </strong>@history.Ticket!.Title
+                        <br>
+                        <strong>Change: </strong>@history.Description
+                        <br>
+                        <small>@history.Created <cite>by @history.User!.FullName</cite></small>
+                        <hr>
+                   </li>
                 }
             </div>
         </section>

@@ -120,8 +120,7 @@ namespace Remedy.Services
                             .Include(t => t.TicketStatus)
                             .Include(t => t.TicketType)
                             .Where(t => !t.Archived && !t.ArchivedByProject && t.Project!.CompanyId == companyId)
-                            .OrderByDescending(t => t.ProjectId)
-                            .ThenByDescending(t => t.TicketPriority)
+                            .OrderByDescending(t => t.Created)
                             .ToListAsync();
 
             }
