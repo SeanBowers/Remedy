@@ -35,6 +35,9 @@
                     <p class="card-subtitle">Created @item.Created.ToString("MMM dd, yyyy")</p>
                 </header>
                 <div class="card-body">
+                    <div class="d-flex justify-content-center">
+                        <img src='@fileService.ConvertByteArrayToFile(item.ImageData!, item.ImageType!,(int)DefaultImage.Project)' alt="..." style="width:100px;height:100px">
+                    </div>
                     <p>@item.Description</p>
                     <div class="row text-center font-weight-semibold">
                         <div class="col-12">

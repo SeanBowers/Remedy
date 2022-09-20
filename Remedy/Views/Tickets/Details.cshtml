@@ -93,13 +93,13 @@
                                         <h2 class="card-title">Developer</h2>
                                     </header>
                                     <div class="card-body">
-                                        @if (@Model.DeveloperUserId == null)
+                                        @if (@Model.DeveloperUserId == null && User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
                                         {
                                             <a asp-action="AssignTicketDeveloper" asp-route-id="@Model?.Id">Assign Developer</a>
                                         }
                                         else
                                         {
-                                            @Model.DeveloperUser!.FullName
+                                            @(Model.DeveloperUser!.FullName ?? "Not Assigned")
                                         }
 
                                     </div>

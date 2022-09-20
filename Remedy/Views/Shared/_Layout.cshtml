@@ -3,6 +3,7 @@
 @inject SignInManager<BTUser> SignInManager
 @inject UserManager<BTUser> UserManager
 @inject IBTRolesService roleService
+@inject IBTNotificationService notificationService
 @{
     BTUser btUser = await UserManager.GetUserAsync(User);
 }
@@ -294,7 +295,7 @@
                                 </li>
                                 <li>
                                     <a class="nav-link" asp-action="Index" asp-controller="Notifications">
-                                        <span class="float-end badge badge-primary"></span>
+                                        <span class="float-end badge badge-primary">@((await notificationService.GetUserNotificationsAsync(btUser.Id)).Count())</span>
                                         <i class="bx bx-envelope" aria-hidden="true"></i>
                                         <span>Notifications</span>
                                     </a>
