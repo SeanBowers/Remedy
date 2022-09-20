@@ -80,8 +80,10 @@ namespace Remedy.Controllers
         {
             if (!string.IsNullOrEmpty(model.PMID))
             {
-                await _projectService.AddProjectManagerAsync(model.PMID, model.Project!.Id);
-
+                if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                {
+                    await _projectService.AddProjectManagerAsync(model.PMID, model.Project!.Id);
+                }
                 TempData["success"] = "Project Manager Assigned!";
                 return RedirectToAction(nameof(Index));
             };
@@ -130,17 +132,19 @@ namespace Remedy.Controllers
                 var devs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
                 var subs = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
                 devs.AddRange(subs);
-                foreach (var user in devs)
+                if (!User.IsInRole(nameof(BTRoles.DemoUser)))
                 {
-                    await _projectService.RemoveUserFromProjectAsync(user, model.Project!.Id);
-                }
+                    foreach (var user in devs)
+                    {
+                        await _projectService.RemoveUserFromProjectAsync(user, model.Project!.Id);
+                    }
 
-                SubID.AddRange(DevID);
-                foreach (var userId in SubID)
-                {
-                    await _projectService.AddUserToProjectAsync(userId!, model.Project!.Id);
+                    SubID.AddRange(DevID);
+                    foreach (var userId in SubID)
+                    {
+                        await _projectService.AddUserToProjectAsync(userId!, model.Project!.Id);
+                    }
                 }
-
                 TempData["success"] = "Members Assigned!";
                 return RedirectToAction("Details", "Projects", new { id = model.Project!.Id });
             };
@@ -197,10 +201,16 @@ namespace Remedy.Controllers
                     project.ImageType = project.ProjectImg.ContentType;
                 }
                 TempData["success"] = "Project Created Successfully!";
-                await _projectService.AddProjectAsync(project);
+                if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                {
+                    await _projectService.AddProjectAsync(project);
+                }
                 if (!string.IsNullOrEmpty(PMID))
                 {
-                    await _projectService.AddProjectManagerAsync(PMID, project!.Id);
+                    if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                    {
+                        await _projectService.AddProjectManagerAsync(PMID, project!.Id);
+                    }
                 };
                 return RedirectToAction("Details", "Projects", new { id = project.Id });
             }
@@ -249,19 +259,25 @@ namespace Remedy.Controllers
                         project.ImageData = await _fileService.ConvertFileToByteArrayAsync(project.ProjectImg);
                         project.ImageType = project.ProjectImg.ContentType;
                     }
-                    await _projectService.UpdateProjectAsync(project);
+                    if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                    {
+                        await _projectService.UpdateProjectAsync(project);
+                    }
                     if (!string.IsNullOrEmpty(PMID))
                     {
-                        await _projectService.AddProjectManagerAsync(PMID, project!.Id);
+                        if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                        {
+                            await _projectService.AddProjectManagerAsync(PMID, project!.Id);
+                        }
                     };
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    
+
                     throw;
                 }
                 TempData["success"] = "Project Edited Successfully!";
-                return RedirectToAction("Details", "Projects", new {id=id});
+                return RedirectToAction("Details", "Projects", new { id = id });
             }
             ViewData["ProjectPriorityId"] = new SelectList(await _lookupService.GetProjectPrioritiesAsync(), "Id", "Id", project.ProjectPriorityId);
             return View(project);
@@ -280,9 +296,12 @@ namespace Remedy.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ArchiveConfirmed(int id)
         {
-            await _projectService.ArchiveProjectAsync(id);
+            if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+            {
+                await _projectService.ArchiveProjectAsync(id);
+            }
             TempData["success"] = "Project Archived!";
-            return RedirectToAction("Details", "Projects", new {id=id});
+            return RedirectToAction("Details", "Projects", new { id = id });
         }
 
         // GET: Projects/Restore/5
@@ -298,7 +317,10 @@ namespace Remedy.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestoreProject(int id)
         {
-            await _projectService.RestoreProjectAsync(id);
+            if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+            {
+                await _projectService.RestoreProjectAsync(id);
+            }
             TempData["success"] = "Project Restored!";
             return RedirectToAction("Details", "Projects", new { id = id });
         }

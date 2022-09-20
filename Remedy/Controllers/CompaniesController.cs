@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
 using Remedy.Extensions;
 using Remedy.Models;
+using Remedy.Models.Enums;
 using Remedy.Models.ViewModels;
 using Remedy.Services.Interfaces;
 
@@ -59,9 +60,12 @@ namespace Remedy.Controllers
             string? selectedRoles = member.SelectedRoles!.FirstOrDefault();
             if (!string.IsNullOrEmpty(selectedRoles))
             {
-                if (await _rolesService.RemoveUserFromRolesAsync(bTUser, currentRoles))
+                if (!User.IsInRole(nameof(BTRoles.DemoUser)))
                 {
-                    await _rolesService.AddUserToRoleAsync(bTUser, selectedRoles);
+                    if (await _rolesService.RemoveUserFromRolesAsync(bTUser, currentRoles))
+                    {
+                        await _rolesService.AddUserToRoleAsync(bTUser, selectedRoles);
+                    }
                 }
             }
             return RedirectToAction(nameof(ManageUserRoles));
@@ -93,7 +97,9 @@ namespace Remedy.Controllers
             {
                 try
                 {
-                    await _companyService.UpdateCompanyAsync(company);
+                    if (!User.IsInRole(nameof(BTRoles.DemoUser))){
+                        await _companyService.UpdateCompanyAsync(company);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

@@ -9,7 +9,7 @@
 }
 
 <header class="page-header">
-    <h2>Edit Ticket</h2>
+    <h2>Ticket Details</h2>
     <div class="right-wrapper text-end">
         <ol class="breadcrumbs">
             <li>
@@ -47,7 +47,6 @@
                             @*Ticket Submitter*@
                             <li><strong>Submitter:</strong> <span class="">  @Model.SubmitterUser!.FullName</span></li>
                             @*Ticket Submitter*@
-                            @*<li><strong>Developer:</strong> <span class="">  @Model.DeveloperUser!.FullName</span></li>*@
                         </ul>
                     </div>
                 </section>
@@ -101,7 +100,6 @@
                                         {
                                             @(Model.DeveloperUser!.FullName ?? "Not Assigned")
                                         }
-
                                     </div>
                                 </section>
                             </div>

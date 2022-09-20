@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Remedy.Data;
 using Remedy.Extensions;
 using Remedy.Models;
+using Remedy.Models.Enums;
 using Remedy.Services.Interfaces;
 
 namespace Remedy.Controllers
@@ -89,8 +90,10 @@ namespace Remedy.Controllers
                     invite.InvitorId = _userManager.GetUserId(User);
                     invite.IsValid = true;
 
-                    await _inviteService.AddNewInviteAsync(invite);
-
+                    if (!User.IsInRole(nameof(BTRoles.DemoUser)))
+                    {
+                        await _inviteService.AddNewInviteAsync(invite);
+                    }
                     return RedirectToAction("Dashboard", "Home");
 
                 }
