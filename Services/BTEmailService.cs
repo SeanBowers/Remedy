@@ -20,10 +20,10 @@ namespace Remedy.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            var emailSender = _mailSettings.EmailAddress ?? Environment.GetEnvironmentVariable("Email");
-            var host = _mailSettings.EmailHost ?? Environment.GetEnvironmentVariable("Host");
-            var port = _mailSettings.EmailPort != 0 ? _mailSettings.EmailPort : int.Parse(Environment.GetEnvironmentVariable("Port")!);
-            string password = _mailSettings.EmailPassword ?? Environment.GetEnvironmentVariable("Password")!;
+            var emailSender = _mailSettings.EmailAddress ?? Environment.GetEnvironmentVariable("EmailAddress");
+            var host = _mailSettings.EmailHost ?? Environment.GetEnvironmentVariable("EmailHost");
+            var port = _mailSettings.EmailPort != 0 ? _mailSettings.EmailPort : int.Parse(Environment.GetEnvironmentVariable("EmailPort")!);
+            string password = _mailSettings.EmailPassword ?? Environment.GetEnvironmentVariable("EmailPassword")!;
 
             MimeMessage newEmail = new();
 
