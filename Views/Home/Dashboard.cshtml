@@ -37,7 +37,7 @@
                         <div class="summary">
                             <h4 class="title">Projects</h4>
                             <div class="info">
-                                <strong class="amount">@Model.Projects.Count()</strong>
+                                <strong class="amount">@Model.Projects!.Count()</strong>
                             </div>
                         </div>
                         <div class="summary-footer">
@@ -109,7 +109,7 @@
                         <div class="summary">
                             <h4 class="title">Members</h4>
                             <div class="info">
-                                <strong class="amount">@Model.Members.Count()</strong>
+                                <strong class="amount">@Model.Members!.Count()</strong>
                             </div>
                         </div>
                         <div class="summary-footer">
@@ -216,7 +216,7 @@
                             </thead>
                             <tbody>
 
-                                @foreach (var item in Model.Tickets)
+                                @foreach (var item in Model.Tickets!)
                                 {
                                     <tr>
                                         <td>
@@ -247,7 +247,7 @@
                                             }
                                             else
                                             {
-                                                
+
                                             }
                                         </td>
                                         <td>
@@ -256,11 +256,11 @@
                                         <td>
                                             @if (User.IsInRole("Submitter") && item.SubmitterUser != btUser)
                                             {
-                                                
+
                                             }
                                             else
                                             {
-                                            <a asp-controller="Tickets" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a>
+                                                <a asp-controller="Tickets" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Details</a>
                                             }
                                         </td>
                                     </tr>
@@ -292,7 +292,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var member in Model.Members)
+                        @foreach (var member in Model.Members!)
                         {
                             <tr>
                                 <td>
@@ -312,56 +312,56 @@
             </div>
         </section>
         <section class="card card-featured card-featured-primary mb-4">
-                    <header class="card-header">
-                        <div class="card-actions">
-                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
-                            <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
-                        </div>
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
+                </div>
 
-                        <h2 class="card-title">Projects</h2>
-                    </header>
-                    <div class="card-body">
-                        <table class="table table-responsive-md mb-0">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Project</th>
-                                    <th>Members</th>
-                                    <th>Tickets</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var project in Model.Projects)
-                                {
-                                    <tr>
-                                        <td>
-                                            @project.Id
-                                        </td>
-                                        <td>
-                                            @project.Name
-                                        </td>
-                                        <td>
-                                            @project.Members!.Count()
-                                        </td>
-                                        <td>
-                                            @project.Tickets!.Count()
-                                        </td>
-                                        <td>
-                                            Active
-                                        </td>
-                                        <td>
-                                            <a class="btn btn-primary btn-sm" asp-action="Details" asp-controller="Projects" asp-route-id="@project.Id">Details</a>
-                                        </td>
-                                    </tr>
+                <h2 class="card-title">Projects</h2>
+            </header>
+            <div class="card-body">
+                <table class="table table-responsive-md mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Project</th>
+                            <th>Members</th>
+                            <th>Tickets</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var project in Model.Projects!)
+                        {
+                            <tr>
+                                <td>
+                                    @project.Id
+                                </td>
+                                <td>
+                                    @project.Name
+                                </td>
+                                <td>
+                                    @project.Members!.Count()
+                                </td>
+                                <td>
+                                    @project.Tickets!.Count()
+                                </td>
+                                <td>
+                                    Active
+                                </td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm" asp-action="Details" asp-controller="Projects" asp-route-id="@project.Id">Details</a>
+                                </td>
+                            </tr>
 
-                                }
+                        }
 
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 </div>
 
@@ -442,17 +442,17 @@
 
         var morrisDonutData = [{
             label: "Low",
-            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "Low").Count()
-                    }, {
+            value: @Model.Tickets.Where(t=>t.TicketPriority!.Name == "Low").Count()
+                            }, {
             label: "Medium",
-            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "Medium").Count()
-                    }, {
+            value: @Model.Tickets.Where(t=>t.TicketPriority!.Name == "Medium").Count()
+                            }, {
             label: "High",
-            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "High").Count()
-                    }, {
+            value: @Model.Tickets.Where(t=>t.TicketPriority!.Name == "High").Count()
+                            }, {
             label: "Urgent",
-            value: @Model.Tickets.Where(t=>t.TicketPriority.Name == "Urgent").Count()
-                    }];
+            value: @Model.Tickets.Where(t=>t.TicketPriority!.Name == "Urgent").Count()
+                            }];
 
 
         /*

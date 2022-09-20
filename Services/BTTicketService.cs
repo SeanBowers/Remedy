@@ -113,7 +113,7 @@ namespace Remedy.Services
             {
                 return await _context.Tickets!
                             .Include(t => t.Project)
-                            .ThenInclude(t => t.Company)
+                            .ThenInclude(t => t!.Company)
                             .Include(t => t.DeveloperUser)
                             .Include(t => t.SubmitterUser)
                             .Include(t => t.TicketPriority)
@@ -138,7 +138,7 @@ namespace Remedy.Services
                 return await _context.Tickets!
                             .Where(t => !t.Archived && !t.ArchivedByProject && t.Project!.Id == projectId)
                             .Include(t => t.Project)
-                            .ThenInclude(t => t.Company)
+                            .ThenInclude(t => t!.Company)
                             .Include(t => t.DeveloperUser)
                             .Include(t => t.SubmitterUser)
                             .Include(t => t.TicketPriority)
@@ -159,7 +159,7 @@ namespace Remedy.Services
             var tickets = await _context.Tickets!
                 .Include(t => t.DeveloperUser)
                 .Include(t => t.Project)
-                .ThenInclude(t => t.Company)
+                .ThenInclude(t => t!.Company)
                 .Include(t => t.SubmitterUser)
                 .Include(t => t.TicketPriority)
                 .Include(t => t.TicketStatus)
@@ -174,7 +174,7 @@ namespace Remedy.Services
         {
             var tickets = await _context.Tickets!
                 .Include(t => t.Project)
-                .ThenInclude(t => t.Company)
+                .ThenInclude(t => t!.Company)
                 .Include(t => t.DeveloperUser)
                 .Include(t => t.SubmitterUser)
                 .Include(t => t.TicketPriority)

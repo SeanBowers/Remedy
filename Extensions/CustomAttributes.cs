@@ -24,7 +24,7 @@ namespace Remedy.Extensions
             }
 
 
-            return ValidationResult.Success;
+            return ValidationResult.Success!;
         }
 
 
@@ -56,7 +56,7 @@ namespace Remedy.Extensions
             }
 
 
-            return ValidationResult.Success;
+            return ValidationResult.Success!;
         }
 
 

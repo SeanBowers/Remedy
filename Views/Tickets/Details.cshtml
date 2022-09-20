@@ -62,7 +62,7 @@
                                 <div class="btn-group d-flex" role="group">
                                     <a asp-action="Details" asp-route-id="@Model?.Project.Id" asp-controller="Projects" class="btn btn-primary w-100" role="button">Project Details</a>
                                     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning w-100" role="button">Edit Ticket</a>
-                                    @if (@Model.Archived == false)
+                                    @if (@Model!.Archived == false)
                                     {
                                         <a asp-action="Archive" asp-route-id="@Model?.Id" class="btn btn-danger w-100" role="button">Archive Ticket</a>
                                     }
@@ -82,7 +82,7 @@
                                         <h2 class="card-title">Submitter</h2>
                                     </header>
                                     <div class="card-body">
-                                        @Model.SubmitterUser.FullName
+                                        @Model!.SubmitterUser.FullName
                                     </div>
                                 </section>
                             </div>
@@ -115,7 +115,7 @@
                     <div class="card-body">
                         <div class="ecommerce-timeline mb-3">
                             <div class="ecommerce-timeline-items-wrapper">
-                                @foreach (TicketComment ticketComment in Model.TicketComments!)
+                                @foreach (TicketComment ticketComment in Model!.TicketComments!)
                                 {
                                     <div class="ecommerce-timeline-item">
                                         <small>added on @ticketComment.Created.ToString("MMM dd, yyyy") by @ticketComment.User!.FullName @*<a href="#" class="text-color-danger">Delete note</a>*@</small>

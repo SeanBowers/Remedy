@@ -56,15 +56,15 @@ namespace Remedy.Controllers
         {
             int companyId = User.Identity!.GetCompanyId();
             BTUser? bTUser = (await _companyService.GetMembersAsync(companyId)).FirstOrDefault(m => m.Id == member.BTUser!.Id);
-            IEnumerable<string> currentRoles = await _rolesService.GetUserRolesAsync(bTUser);
+            IEnumerable<string> currentRoles = await _rolesService.GetUserRolesAsync(bTUser!);
             string? selectedRoles = member.SelectedRoles!.FirstOrDefault();
             if (!string.IsNullOrEmpty(selectedRoles))
             {
                 if (!User.IsInRole(nameof(BTRoles.DemoUser)))
                 {
-                    if (await _rolesService.RemoveUserFromRolesAsync(bTUser, currentRoles))
+                    if (await _rolesService.RemoveUserFromRolesAsync(bTUser!, currentRoles))
                     {
-                        await _rolesService.AddUserToRoleAsync(bTUser, selectedRoles);
+                        await _rolesService.AddUserToRoleAsync(bTUser!, selectedRoles);
                     }
                 }
             }

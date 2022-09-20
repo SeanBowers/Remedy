@@ -71,7 +71,6 @@ namespace Remedy.Services
 
                 throw;
             }
-            return false;
         }
     }
 }

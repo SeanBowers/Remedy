@@ -70,7 +70,7 @@ namespace Remedy.Controllers
 
             foreach (Project prj in projects)
             {
-                chartData.Add(new object[] { prj.Name, prj.Tickets.Count() });
+                chartData.Add(new object[] { prj.Name!, prj.Tickets!.Count() });
             }
 
             return Json(chartData);

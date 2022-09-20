@@ -167,7 +167,7 @@ namespace Remedy.Controllers
         // GET: Tickets/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var ticket = await _ticketService.GetTicketByIdAsync(id.Value);
+            var ticket = await _ticketService.GetTicketByIdAsync(id!.Value);
 
             if (ticket == null)
             {
@@ -407,7 +407,7 @@ namespace Remedy.Controllers
         // GET: Restore
         public async Task<IActionResult> Restore(int? id)
         {
-            var ticket = await _ticketService.GetTicketByIdAsync(id.Value);
+            var ticket = await _ticketService.GetTicketByIdAsync(id!.Value);
 
             if (ticket == null)
             {

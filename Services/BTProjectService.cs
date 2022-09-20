@@ -363,7 +363,7 @@ namespace Remedy.Services
         
         public async Task<List<Project>> GetAllProjectsByPriorityAsync(int companyId, string priority)
         {
-            List<Project> projects = await _context.Projects.Include(p => p.ProjectPriority).Where(p => p.CompanyId == companyId && p.ProjectPriority.Name == priority).ToListAsync();
+            List<Project> projects = await _context.Projects!.Include(p => p.ProjectPriority).Where(p => p.CompanyId == companyId && p.ProjectPriority!.Name == priority).ToListAsync();
 
             return projects;
         }
